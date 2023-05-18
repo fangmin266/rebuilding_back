@@ -1,15 +1,18 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
+  UseGuards,
+  Req,
+  Res,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { LoginUserDto } from 'src/user/dto/login-user.dto';
+import { CreateUserDto } from '@user/dto/create-user.dto';
+import { LocalAuthGuard } from '@root/guard/localAuth.gaurd';
+import { RequestWithUserInterface } from './interface/requestWithUser.interface';
+import { Response } from 'express';
+import { JwtAuthGuard } from '@root/guard/jwtAuth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -21,12 +24,25 @@ export class AuthController {
     return user;
   }
 
+  @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Body() loginuserDto: LoginUserDto) {
-    const loggedUser = await this.authService.getAuthenticatedUser(
-      loginuserDto.email,
-      loginuserDto.password,
-    );
-    return loggedUser;
+  async login(
+    @Req() request: RequestWithUserInterface,
+    @Res() response: Response,
+  ) {
+    const user = request.user;
+    // return user;
+    const token = await this.authService.generateJWT(user.id);
+    return response.send({
+      user,
+      token,
+    });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  async getProfile(@Req() request: RequestWithUserInterface) {
+    const { user } = request;
+    return user;
   }
 }

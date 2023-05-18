@@ -30,7 +30,22 @@ networks 설정되어있는지 check (동일 네트워크선상이어야 함)
 
 ```
 
-2. passport integration
-3. jwt strategy
+- passport intergration
+
+```
+UseGuard문을 활용한 로그인 간소화(LocalAuthGuard)
+strategy, guard 설정
+: param 필수값 및 검증 체크
+```
+
+- 상대경로 설정 : tsconfig.paths.json /tsconfig.json에 확장
+- jwt 생성과 활용
+
+```
+userId 활용하여 jwt token 생성
+strategy, guard 설정
+: param 필수값 및 검증 체크
+```
+
 4. email verification
 5. thrid party - bootpay & twilio

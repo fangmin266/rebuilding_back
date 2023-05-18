@@ -1,10 +1,17 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { UserService } from 'src/user/user.service';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { CreateUserDto } from '@user/dto/create-user.dto';
+import { UserService } from '@user/user.service';
 import * as bcrypt from 'bcryptjs';
+import { TokenPayload } from './interface/tokenPayload.interface';
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {}
   public async signup(createUserDto: CreateUserDto) {
     let alreadyExist = await this.userService.getByEmail(createUserDto.email);
     try {
@@ -43,5 +50,12 @@ export class AuthService {
     if (!isPasswordMatching) {
       throw new HttpException('wrong password', HttpStatus.BAD_REQUEST);
     }
+  }
+
+  public generateJWT(userId: string) {
+    //userId로 jwt생성
+    const payload: TokenPayload = { userId };
+    const token = this.jwtService.sign(payload);
+    return token;
   }
 }
