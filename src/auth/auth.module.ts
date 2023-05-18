@@ -9,6 +9,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from '@root/strategy/jwt.strategy';
 import { EmailModule } from '@root/email/email.module';
 import { SmsModule } from '@root/sms/sms.module';
+import { GoogleStrategy } from '@root/strategy/google.strategy';
+import { FacebookStrategy } from '@root/strategy/facebook.strategy';
+import { NaverStrategy } from '@root/strategy/naver.strategy';
+import { KakaoStrategy } from '@root/strategy/kakao.strategy';
 
 @Module({
   imports: [
@@ -33,6 +37,14 @@ import { SmsModule } from '@root/sms/sms.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    GoogleStrategy,
+    FacebookStrategy,
+    NaverStrategy,
+    KakaoStrategy,
+  ],
 })
 export class AuthModule {}

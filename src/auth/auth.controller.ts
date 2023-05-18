@@ -6,6 +6,7 @@ import {
   Req,
   Res,
   Get,
+  HttpStatus,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '@user/dto/create-user.dto';
@@ -16,6 +17,11 @@ import { JwtAuthGuard } from '@root/guard/jwtAuth.guard';
 import { ConfirmEmailDto } from '@root/user/dto/confirm-email.dto';
 import { ConfirmAuthenticate } from '@root/user/dto/confirm-authenticate.dto';
 import { SmsService } from '@root/sms/sms.service';
+import { GoogleOathGuard } from '@root/guard/googleAuth.guard';
+import { FacebookGuard } from '@root/guard/facebookAuth.guard';
+import { HttpStatusCode } from 'axios';
+import { NaverGuard } from '@root/guard/naverAuth.guard';
+import { KakaoGuard } from '@root/guard/kakaoAuth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -82,5 +88,51 @@ export class AuthController {
   @Post('sms/check')
   async checkSMS(@Body('phone') phone: string, @Body('code') code: string) {
     return await this.smsService.confirmPhoneVerification(phone, code);
+  }
+
+  @Get('google')
+  @UseGuards(GoogleOathGuard)
+  loginWithGoogle() {
+    return HttpStatus.OK;
+  }
+  @Get('google/callback')
+  @UseGuards(GoogleOathGuard)
+  googleCallback(@Req() req) {
+    console.log(req);
+  }
+
+  @Get('facebook')
+  @UseGuards(FacebookGuard)
+  loginWithFacebook() {
+    return HttpStatusCode.Ok;
+  }
+  @Get('facebook/callback')
+  @UseGuards(FacebookGuard)
+  facebookCallback(@Req() req) {
+    console.log(req, ' req facebook');
+  }
+
+  @Get('naver')
+  @UseGuards(NaverGuard)
+  loginWithNaver() {
+    return HttpStatusCode.Ok;
+  }
+
+  @Get('naver/callback')
+  @UseGuards(NaverGuard)
+  naverCallback(@Req() req) {
+    console.log(req, 'req callback');
+  }
+
+  @Get('kakao')
+  @UseGuards(KakaoGuard)
+  loginWithKakao() {
+    return HttpStatusCode.Ok;
+  }
+
+  @Get('kakao/callback')
+  @UseGuards(KakaoGuard)
+  kakaoCallback(@Req() req) {
+    console.log(req, ' req, kakao');
   }
 }

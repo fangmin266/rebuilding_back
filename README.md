@@ -68,3 +68,10 @@ initiatePhoneNumberVerification //인증번호 발송
 confirmPhoneVerification //인증번호 확인
 //test 시 phone:+8210
 ```
+
+5. social login (google, naver, kakao, facebook)
+
+```
+google - redirection uri 생성하려면 oAuth동의화면 설정필요
+kakao - client_id :rest api 키 / redirect_uri : 카카오개발자 >카카오로그인 클릭시 생성가능
+```

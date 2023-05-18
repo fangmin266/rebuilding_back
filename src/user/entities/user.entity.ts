@@ -2,6 +2,7 @@ import { BeforeInsert, Column, Entity } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Exclude } from 'class-transformer';
 import { AbstractEntity } from './abstract.entity';
+import { Source } from './source.enum';
 @Entity()
 export class User extends AbstractEntity {
   @Column()
@@ -16,6 +17,13 @@ export class User extends AbstractEntity {
 
   @Column({ default: false })
   public isEmailConfirmed: boolean;
+
+  @Column({
+    type: 'enum',
+    enum: Source,
+    default: Source.LOCAL,
+  })
+  public source: Source;
 
   @BeforeInsert()
   async hashPassword() {
