@@ -1,16 +1,9 @@
-import {
-  BeforeInsert,
-  Column,
-  Entity,
-  PrimaryColumn,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { BeforeInsert, Column, Entity } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
+import { Exclude } from 'class-transformer';
+import { AbstractEntity } from './abstract.entity';
 @Entity()
-export class User {
-  @PrimaryGeneratedColumn('uuid')
-  public id: string;
-
+export class User extends AbstractEntity {
   @Column()
   public username: string;
 
@@ -18,7 +11,11 @@ export class User {
   public email: string;
 
   @Column({ nullable: true })
+  @Exclude() //password 출력되지 x
   public password?: string;
+
+  @Column({ default: false })
+  public isEmailConfirmed: boolean;
 
   @BeforeInsert()
   async hashPassword() {

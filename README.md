@@ -47,5 +47,24 @@ strategy, guard 설정
 : param 필수값 및 검증 체크
 ```
 
-4. email verification
-5. thrid party - bootpay & twilio
+4. email verification / third party(Bootpay, Twilio)
+
+- email verification
+
+```
+회원가입시 jwt토큰 포함한 인증메일발송(id) 및 확인(디코딩) - 노드메일러
+```
+
+- third party 본인인증
+
+```
+//Bootpay
+Bootpay.setConfiguration({application_id, private_key})
+Bootpay.getAccessToken() //토큰 접근
+Bootpay.requestAuthentication({인증받는 기기 소유자 정보 param}) //인증번호 발송
+Bootpay.confirmAuthentication({receipt_id, otp}) //인증번호 확인
+//Twilio
+initiatePhoneNumberVerification //인증번호 발송
+confirmPhoneVerification //인증번호 확인
+//test 시 phone:+8210
+```

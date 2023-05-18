@@ -14,10 +14,6 @@ export class UserService {
   async getByEmail(email: string) {
     const user = await this.userRepository.findOneBy({ email });
     if (user) return user;
-    throw new HttpException(
-      'user with this email does not exit',
-      HttpStatus.NOT_FOUND,
-    );
   }
   async getById(id: string) {
     const user = await this.userRepository.findOneBy({ id });
@@ -31,5 +27,14 @@ export class UserService {
     const newUser = this.userRepository.create(userData);
     await this.userRepository.save(newUser);
     return newUser;
+  }
+
+  async markEmailAsConfirmed(email: string) {
+    return this.userRepository.update(
+      { email },
+      {
+        isEmailConfirmed: true,
+      },
+    );
   }
 }

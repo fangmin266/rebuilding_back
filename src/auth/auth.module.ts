@@ -7,12 +7,20 @@ import { LocalStrategy } from '@root/strategy/local.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from '@root/strategy/jwt.strategy';
+import { EmailModule } from '@root/email/email.module';
+import { SmsModule } from '@root/sms/sms.module';
 
 @Module({
   imports: [
     UserModule,
     PassportModule,
-    ConfigModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      cache: true,
+      expandVariables: true,
+    }),
+    EmailModule,
+    SmsModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

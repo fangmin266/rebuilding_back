@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@bootpay/backend-js": "^2.1.8",
     "@hapi/joi": "^17.1.1",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.3.2",
@@ -30,17 +31,22 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/typeorm": "^9.0.1",
     "@types/bcryptjs": "^2.4.2",
+    "@types/nodemailer": "^6.4.7",
     "@types/passport-jwt": "^3.0.8",
     "@types/passport-local": "^1.0.35",
     "bcryptjs": "^2.4.3",
+    "bootpay-backend-nodejs": "^1.1.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
+    "nestjs-twilio": "^4.1.1",
+    "nodemailer": "^6.9.2",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "pg": "^8.11.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
+    "twilio": "^4.11.0",
     "typeorm": "^0.3.16"
   },
   "devDependencies": {

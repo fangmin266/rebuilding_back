@@ -7,6 +7,8 @@ import { UserModule } from '@user/user.module';
 import { AuthModule } from '@auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from '@hapi/joi'; //유성 검사
+import { EmailModule } from './email/email.module';
+import { SmsModule } from './sms/sms.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -19,12 +21,30 @@ import * as Joi from '@hapi/joi'; //유성 검사
 
         JWT_SECRET: Joi.string().required(),
         JWT_EXPIRATION_TIME: Joi.string().required(),
+
+        JWT_VERIFICATION_TOKEN_SECRET: Joi.string().required(),
+        JWT_VERIFICATION_TOKEN_EXPIRATION_TIME: Joi.string().required(),
+        EMAIL_CONFIRMATION_URL: Joi.string().required(),
+
+        EMAIL_SERVICE: Joi.string().required(),
+        EMAIL_USER: Joi.string().required(),
+        EMAIL_PASSWORD: Joi.string().required(),
+
+        BOOTPAY_APPLICATION_ID: Joi.string().required(),
+        BOOTPAY_PRIVATE_KEY: Joi.string().required(),
+
+        TWILIO_ACCOUNT_SID: Joi.string().required(),
+        TWILIO_AUTH_TOKEN: Joi.string().required(),
+        TWILIO_VERIFICATION_SERVICE_SID: Joi.string().required(),
+        TWILIO_PHONE_NUMBER: Joi.string().required(),
       }),
     }),
     DatabaseModule,
     ProductModule,
     UserModule,
     AuthModule,
+    EmailModule,
+    SmsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
