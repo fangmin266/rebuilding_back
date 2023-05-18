@@ -22,7 +22,15 @@ import { FacebookGuard } from '@root/guard/facebookAuth.guard';
 import { HttpStatusCode } from 'axios';
 import { NaverGuard } from '@root/guard/naverAuth.guard';
 import { KakaoGuard } from '@root/guard/kakaoAuth.guard';
+import {
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { User } from '@root/user/entities/user.entity';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -31,6 +39,10 @@ export class AuthController {
   ) {}
 
   @Post('signup')
+  @ApiCreatedResponse({
+    description: 'the record has been seccuess',
+    type: User,
+  })
   async signup(@Body() createUserDto: CreateUserDto) {
     const user = await this.authService.signup(createUserDto);
     await this.authService.sendVerificationLink(createUserDto.email);
@@ -60,6 +72,12 @@ export class AuthController {
   }
 
   @Post('email/confirm')
+  @ApiResponse({ status: 200, description: 'confirmation email' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  @ApiOperation({
+    summary: '회원가입시 정송된 이메일로 인증',
+    description: '사용자 전체 조회',
+  })
   async confirm(@Body() confirmationDto: ConfirmEmailDto) {
     const email = await this.authService.decodedConfirmationToken(
       confirmationDto.token,

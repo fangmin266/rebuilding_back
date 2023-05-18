@@ -11,6 +11,11 @@ export class UserService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
+
+  async getAllUsers() {
+    return await this.userRepository.find({});
+  }
+
   async getByEmail(email: string) {
     const user = await this.userRepository.findOneBy({ email });
     if (user) return user;

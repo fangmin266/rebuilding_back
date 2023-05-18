@@ -6,3 +6,8 @@ export enum Source {
   NAVER = 'naver',
   EMAIL = 'email',
 }
+export enum Role {
+  SUPER = 'super',
+  ADMIN = 'admin',
+  USER = 'user',
+}
