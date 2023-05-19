@@ -1,10 +1,20 @@
-import { BeforeInsert, Column, Entity } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  OneToOne,
+} from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Exclude } from 'class-transformer';
 import { AbstractEntity } from './abstract.entity';
 import { Role, Source } from './source.enum';
 import { ApiProperty } from '@nestjs/swagger';
 import * as grabatar from 'gravatar';
+import { Profile } from '@root/profile/entities/profile.entity';
+import { Product } from '@root/product/entities/product.entity';
 @Entity()
 export class User extends AbstractEntity {
   @ApiProperty()
@@ -26,7 +36,14 @@ export class User extends AbstractEntity {
 
   @ApiProperty()
   @Column({ nullable: true })
-  profile: string;
+  profile_img: string;
+
+  @OneToOne(() => Profile, {
+    eager: true,
+    cascade: true,
+  })
+  @JoinColumn()
+  public profile: Profile;
 
   @ApiProperty()
   @Column({
@@ -44,6 +61,10 @@ export class User extends AbstractEntity {
   })
   public userrole: Role;
 
+  @ManyToMany(() => Product, (product: Product) => product.fundingList)
+  @JoinTable()
+  public fundingProducts: Product[];
+
   @BeforeInsert()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 10);
@@ -51,7 +72,7 @@ export class User extends AbstractEntity {
 
   @BeforeInsert()
   async generateProfile() {
-    this.profile = await grabatar.url(this.email, {
+    this.profile_img = await grabatar.url(this.email, {
       s: '100',
       protocol: 'https',
     });

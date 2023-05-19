@@ -97,17 +97,40 @@ PageOptionDto 페이지 옵션을 담는 전송 객체(request)
 @query : 쿼리빌더의 검색 파라메터
 ```
 
-9. relation (oneToone / oneToMany )
+9. relation (oneToone / oneToMany / manyToOne )
+   <img width="811" alt="스크린샷 2023-05-19 오후 4 48 19" src="https://github.com/fangmin26/ecommerce/assets/79704363/faf91354-53af-42a4-92bf-c3ce8987aad8">
 
-10. healthcheck with terminus
+```
+oneToMany에서 발생한 에러 : Comment 모듈 잘못 불러온 이슈
+```
 
-11. s3 이미지 추가
+<img width="694" alt="스크린샷 2023-05-19 오후 5 05 49" src="https://github.com/fangmin26/ecommerce/assets/79704363/24d21b65-d3c4-4975-91d1-6d14753e26eb">
+<img width="694" alt="스크린샷 2023-05-19 오후 5 05 59" src="https://github.com/fangmin26/ecommerce/assets/79704363/a64b158f-74a2-451f-aa3a-129d7cf18980">
+```
+Comment service 단에서 product repository부르기 위해 imports
+```
 
-12. 기타
+10. 로그인 관련 비밀번호 변경 혹은 찾기
+
+11. accessToken , refreshToken
+
+12. redis in memory(추가,삭제 업데이트)
+
+13. open api data save (library) with cron
+
+14. schedule module?(cron?)
+
+15. s3 이미지 추가
+
+16. 기타
 
 - 상대경로 설정 : tsconfig.paths.json /tsconfig.json에 확장
 - gravatar (랜덤 이미지 생성)
-- 시스템 설계도(overview.html)
 - swagger
 - ssl
   https://peiiload.tistory.com/54
+- healthcheck with terminus
+- gratapa prometheus(monitoring tool)
+- throttler
+- 시스템 설계도(overview.html)
+- 시퀀스다이어그램

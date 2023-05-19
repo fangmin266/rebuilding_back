@@ -6,11 +6,18 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  HttpStatus,
+  HttpException,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { UpdatedProductDto } from './dto/update-product.dto';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { RoleGuard } from '@root/guard/role.guard';
+import { Role } from '@root/user/entities/source.enum';
+import { TransformInterceptor } from '@root/common/interceptor/transform.interceptor';
 
 @ApiTags('product')
 @Controller('product')
@@ -18,27 +25,66 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Post()
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productService.create(createProductDto);
+  @UseGuards(RoleGuard(Role.USER))
+  @UseInterceptors(TransformInterceptor)
+  @ApiResponse({ status: 200, description: 'success create product' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  @ApiOperation({ summary: 'product 생성', description: 'product 생성' })
+  async create(@Body() createProductDto: CreateProductDto) {
+    return await this.productService.create(createProductDto);
   }
 
-  @Get()
-  findAll() {
-    return this.productService.findAll();
+  @Get('all')
+  @UseGuards(RoleGuard(Role.USER))
+  @UseInterceptors(TransformInterceptor)
+  @ApiResponse({ status: 200, description: 'get productall' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  @ApiOperation({ summary: 'product all get', description: 'product all get' })
+  async getProductAll() {
+    return await this.productService.getAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productService.findOne(+id);
+  @UseGuards(RoleGuard(Role.USER))
+  @UseInterceptors(TransformInterceptor)
+  @ApiResponse({ status: 200, description: 'success get product id' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  @ApiOperation({ summary: 'product id get', description: 'product id get' })
+  async getProductById(@Param('id') id: string) {
+    if (id !== undefined) {
+      return this.productService.getById(id);
+    } else {
+      throw new HttpException('product id가 없습니다', HttpStatus.NOT_FOUND);
+    }
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.update(+id, updateProductDto);
+  @Get('edit/:id')
+  @UseGuards(RoleGuard(Role.USER))
+  @UseInterceptors(TransformInterceptor)
+  @ApiResponse({ status: 200, description: 'success edit product id' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  @ApiOperation({ summary: 'product id edit', description: 'product id edit' })
+  async edit(
+    @Body() updatedProductDto: UpdatedProductDto,
+    @Param('id') id: string,
+  ) {
+    await this.productService.update(updatedProductDto, id);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productService.remove(+id);
+  @Get('delete/:id')
+  @UseGuards(RoleGuard(Role.USER))
+  @UseInterceptors(TransformInterceptor)
+  @ApiResponse({ status: 200, description: 'success delete product id' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  @ApiOperation({
+    summary: 'delete product id',
+    description: 'delete product id',
+  })
+  async deleteProduct(@Param('id') id: string) {
+    if (id !== undefined) {
+      return this.productService.deleteProduct(id);
+    } else {
+      throw new HttpException('product id가 없습니다', HttpStatus.NOT_FOUND);
+    }
   }
 }

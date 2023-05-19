@@ -160,7 +160,7 @@ export class AuthService {
     email: string,
     username: string,
     password: string,
-    profile: string,
+    profile_img: string,
   ) {
     try {
       const user = await this.userService.getByEmail(email);
@@ -170,7 +170,7 @@ export class AuthService {
           email,
           username,
           password,
-          profile,
+          profile_img,
         });
         return {
           statusCode: 200,
