@@ -57,18 +57,14 @@ export class User extends AbstractEntity {
   @Column({
     type: 'enum',
     enum: Role,
-    default: Role.USER,
+    default: [Role.USER],
+    array: true,
   })
-  public userrole: Role;
+  public userrole: Role[]; //ex) user이면서 admin인
 
   @ManyToMany(() => Product, (product: Product) => product.fundingList)
   @JoinTable()
   public fundingProducts: Product[];
-
-  @BeforeInsert()
-  async hashPassword() {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
 
   @BeforeInsert()
   async generateProfile() {
@@ -76,5 +72,8 @@ export class User extends AbstractEntity {
       s: '100',
       protocol: 'https',
     });
+
+    const saltValue = await bcrypt.genSalt(10); //hash password
+    this.password = await bcrypt.hash(this.password, saltValue);
   }
 }

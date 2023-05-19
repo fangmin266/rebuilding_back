@@ -117,11 +117,15 @@ Comment service 단에서 product repository부르기 위해 imports 추가
 email로 토큰 생성하여 비밀번호변경
 ```
 
-11. accessToken , refreshToken
+11. open api data save (library) with cron
 
-12. redis in memory(추가,삭제 업데이트)
+12. accessToken , refreshToken
 
-13. open api data save (library) with cron
+13. redis in memory(추가,삭제 업데이트)
+
+```
+docker 사용하지 않고 로컬에서 RedisInsight 샤용할시 포그라운드실행필요 (redis-server)
+```
 
 14. schedule module?(cron?)
 

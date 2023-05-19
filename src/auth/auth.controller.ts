@@ -38,9 +38,7 @@ import {
   TransformInterceptor,
 } from '@root/common/interceptor/transform.interceptor';
 import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
-import { VerificationTokenPayloadInterface } from './interface/VerificationTokenPayload.interface';
 import { JwtService } from '@nestjs/jwt';
-
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {

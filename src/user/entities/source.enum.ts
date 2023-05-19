@@ -4,7 +4,6 @@ export enum Source {
   GOOGLE = 'google',
   KAKAO = 'kakao',
   NAVER = 'naver',
-  EMAIL = 'email',
 }
 export enum Role {
   SUPER = 'super',

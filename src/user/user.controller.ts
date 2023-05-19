@@ -19,7 +19,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('all')
-  @UseGuards(RoleGuard(Role.USER))
+  @UseGuards(RoleGuard(Role.ADMIN))
   @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'get all users success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
