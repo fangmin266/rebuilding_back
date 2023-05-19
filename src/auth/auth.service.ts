@@ -14,6 +14,7 @@ import { VerificationTokenPayloadInterface } from './interface/VerificationToken
 import { EmailService } from '@root/email/email.service';
 import Bootpay from '@bootpay/backend-js';
 import { ConfirmAuthenticate } from '@root/user/dto/confirm-authenticate.dto';
+import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -186,5 +187,35 @@ export class AuthService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  public async changePassword(passwordChangeDto: PasswordChangeDto) {
+    console.log(passwordChangeDto.token);
+    const email = await this.decodedConfirmationToken(passwordChangeDto.token);
+    console.log(email);
+    return await this.userService.changePassword(
+      email,
+      passwordChangeDto.password,
+    );
+  }
+
+  public sendPasswordVerification(email: string) {
+    const payload: VerificationTokenPayloadInterface = { email };
+    const token = this.jwtService.sign(payload, {
+      //생성
+      secret: this.configService.get('JWT_VERIFICATION_TOKEN_SECRET_PASSWORD'),
+      expiresIn: `${this.configService.get(
+        'JWT_VERIFICATION_TOKEN_EXPIRATION_TIME_PASSWORD',
+      )}s`,
+    });
+    const url = `${this.configService.get(
+      'PASSWORD_CONFIRMATION_URL',
+    )}?token=${token}`;
+    const text = `password change ${url}`;
+    return this.emailService.sendMail({
+      to: email,
+      subject: 'password confirnation',
+      text,
+    });
   }
 }

@@ -9,6 +9,7 @@ import {
   HttpStatus,
   UseInterceptors,
   HttpException,
+  Put,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '@user/dto/create-user.dto';
@@ -36,6 +37,9 @@ import {
   Info,
   TransformInterceptor,
 } from '@root/common/interceptor/transform.interceptor';
+import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
+import { VerificationTokenPayloadInterface } from './interface/VerificationTokenPayload.interface';
+import { JwtService } from '@nestjs/jwt';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -44,6 +48,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly userService: UserService,
     private readonly smsService: SmsService,
+    private readonly jwtService: JwtService,
   ) {}
 
   @Post('signup')
@@ -282,5 +287,32 @@ export class AuthController {
       photo,
     );
     return loginRes;
+  }
+
+  @Post('password/sendtokentoemail')
+  @UseInterceptors(TransformInterceptor)
+  @ApiOperation({
+    summary: 'password findby email',
+    description: 'email 로 token 발행',
+  })
+  @ApiResponse({ status: 200, description: 'passwordfind by email success' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  async findPassword(@Body('email') email: string) {
+    const findUser = await this.userService.findPasswordByEmail(email);
+    await this.authService.sendPasswordVerification(findUser.email);
+    return 'successful send password link';
+  }
+
+  @Put('password/changebyemail')
+  @UseInterceptors(TransformInterceptor)
+  @ApiOperation({
+    summary: '발행된 토큰 + 변경비밀번호',
+    description: 'password changeby email',
+  })
+  @ApiResponse({ status: 200, description: 'passwordchange by email success' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  async changePassword(@Body() passwordChangeDto: PasswordChangeDto) {
+    await this.authService.changePassword(passwordChangeDto);
+    return 'changepassword success';
   }
 }

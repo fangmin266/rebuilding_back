@@ -1,13 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { PageOptionDto } from '@root/common/dto/page-option.dto';
 import { Page } from '@root/common/dto/page.dto';
 import { PageMetaDto } from '@root/common/dto/page-meta.dto';
-
+import * as bcrypt from 'bcryptjs';
 @Injectable()
 export class UserService {
   constructor(
@@ -52,5 +51,23 @@ export class UserService {
         isEmailConfirmed: true,
       },
     );
+  }
+
+  async changePassword(email: string, password: string) {
+    const user = await this.userRepository.findOneBy({ email });
+    user.password = await bcrypt.hash(password, 10); //변경되는 password값도 hash처리
+    return this.userRepository.save(user);
+  }
+
+  async findPasswordByEmail(email: string) {
+    const findUser = await this.userRepository.findOneBy({ email });
+    if (findUser) {
+      return findUser;
+    } else {
+      throw new HttpException(
+        'User with email does not exist',
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 }

@@ -106,11 +106,16 @@ oneToMany에서 발생한 에러 : Comment 모듈 잘못 불러온 이슈
 
 <img width="694" alt="스크린샷 2023-05-19 오후 5 05 49" src="https://github.com/fangmin26/ecommerce/assets/79704363/24d21b65-d3c4-4975-91d1-6d14753e26eb">
 <img width="694" alt="스크린샷 2023-05-19 오후 5 05 59" src="https://github.com/fangmin26/ecommerce/assets/79704363/a64b158f-74a2-451f-aa3a-129d7cf18980">
+
 ```
-Comment service 단에서 product repository부르기 위해 imports
+Comment service 단에서 product repository부르기 위해 imports 추가
 ```
 
-10. 로그인 관련 비밀번호 변경 혹은 찾기
+10. password change
+
+```
+email로 토큰 생성하여 비밀번호변경
+```
 
 11. accessToken , refreshToken
 
