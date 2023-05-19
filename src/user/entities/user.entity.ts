@@ -4,10 +4,11 @@ import { Exclude } from 'class-transformer';
 import { AbstractEntity } from './abstract.entity';
 import { Role, Source } from './source.enum';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
 @Entity()
 export class User extends AbstractEntity {
   @ApiProperty()
-  @Column()
+  @Column({ nullable: true })
   public username: string;
 
   @ApiProperty()
@@ -22,6 +23,10 @@ export class User extends AbstractEntity {
   @ApiProperty()
   @Column({ default: false })
   public isEmailConfirmed: boolean;
+
+  @ApiProperty()
+  @Column({ nullable: true })
+  profile: string;
 
   @ApiProperty()
   @Column({

@@ -64,8 +64,10 @@ export class AuthService {
 
   public generateJWT(userId: string) {
     //userId로 jwt생성
+    console.log(userId, 'userid');
     const payload: TokenPayload = { userId };
     const token = this.jwtService.sign(payload);
+    console.log(token, 'token');
     return token;
   }
 
@@ -154,6 +156,36 @@ export class AuthService {
     } catch (e) {
       // 발급 실패시 오류
       console.log(e);
+    }
+  }
+
+  public async socialLogin(
+    email: string,
+    username: string,
+    password: string,
+    profile: string,
+  ) {
+    try {
+      console.log(email, username, password, profile, 'this~~~~~~~~~~');
+      const user = await this.userService.getByEmail(email);
+      if (!user) {
+        const signupuser = await this.signup({
+          email,
+          username,
+          password,
+          profile,
+        });
+        console.log(signupuser, 'signup');
+        return { user: signupuser };
+      } else {
+        const token = this.generateJWT(user.id);
+        return { user, token };
+      }
+    } catch (error) {
+      throw new HttpException(
+        'something went wring in social',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

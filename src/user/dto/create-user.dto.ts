@@ -23,4 +23,8 @@ export class CreateUserDto {
   @MinLength(7)
   @MaxLength(20)
   password: string;
+
+  @ApiProperty()
+  @IsString()
+  profile: string;
 }

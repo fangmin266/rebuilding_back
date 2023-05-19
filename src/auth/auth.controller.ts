@@ -29,12 +29,14 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { User } from '@root/user/entities/user.entity';
+import { UserService } from '@root/user/user.service';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+    private readonly userService: UserService,
     private readonly smsService: SmsService,
   ) {}
 
@@ -56,7 +58,6 @@ export class AuthController {
     @Res() response: Response,
   ) {
     const user = request.user;
-    // return user;
     const token = await this.authService.generateJWT(user.id);
     return response.send({
       user,
@@ -115,8 +116,19 @@ export class AuthController {
   }
   @Get('google/callback')
   @UseGuards(GoogleOathGuard)
-  googleCallback(@Req() req) {
-    console.log(req);
+  async googleCallback(@Req() req) {
+    const user = req.user;
+    const email = user.email;
+    const username = user.displayName;
+    const password_before = user.id + email;
+    const photo = user.picture;
+    const loginRes = await this.authService.socialLogin(
+      email,
+      username,
+      password_before,
+      photo,
+    );
+    return loginRes;
   }
 
   @Get('facebook')
@@ -126,8 +138,19 @@ export class AuthController {
   }
   @Get('facebook/callback')
   @UseGuards(FacebookGuard)
-  facebookCallback(@Req() req) {
-    console.log(req, ' req facebook');
+  async facebookCallback(@Req() req) {
+    const user = req.user;
+    const email = user._json.email;
+    const username = user.name.familyName + user.name.givenName;
+    const password_before = user.id + email;
+    const photo = null;
+    const loginRes = await this.authService.socialLogin(
+      email,
+      username,
+      password_before,
+      photo,
+    );
+    return loginRes;
   }
 
   @Get('naver')
@@ -138,8 +161,21 @@ export class AuthController {
 
   @Get('naver/callback')
   @UseGuards(NaverGuard)
-  naverCallback(@Req() req) {
-    console.log(req, 'req callback');
+  async naverCallback(@Req() req) {
+    const user = req.user;
+    const userj = user._json;
+    const email = userj.email ? userj.email : null;
+    const username = userj.nickName ? userj.nickName : null;
+    const password_before = user.id + email;
+    const photo = userj.profile ? userj.profile : null;
+    const loginRes = await this.authService.socialLogin(
+      email,
+      username,
+      password_before,
+      photo,
+    );
+
+    return loginRes;
   }
 
   @Get('kakao')
@@ -150,7 +186,18 @@ export class AuthController {
 
   @Get('kakao/callback')
   @UseGuards(KakaoGuard)
-  kakaoCallback(@Req() req) {
-    console.log(req, ' req, kakao');
+  async kakaoCallback(@Req() req) {
+    const user = JSON.parse(req.user._raw);
+    const email = user.kakao_account.email;
+    const username = user.properties.nickName;
+    const password_before = user.id + email;
+    const photo = user.kakao_account.profile.profile_image_url;
+    const loginRes = await this.authService.socialLogin(
+      email,
+      username,
+      password_before,
+      photo,
+    );
+    return loginRes;
   }
 }
