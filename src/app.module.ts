@@ -12,6 +12,8 @@ import { SmsModule } from './sms/sms.module';
 import { TerminusModule } from '@nestjs/terminus';
 import { ProfileModule } from './profile/profile.module';
 import { CommentModule } from './comment/comment.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { LibraryModule } from './library/library.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -51,6 +53,8 @@ import { CommentModule } from './comment/comment.module';
     TerminusModule,
     ProfileModule,
     CommentModule,
+    ScheduleModule.forRoot(),
+    LibraryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -7,8 +7,10 @@ import { PageOptionDto } from '@root/common/dto/page-option.dto';
 import { Page } from '@root/common/dto/page.dto';
 import { PageMetaDto } from '@root/common/dto/page-meta.dto';
 import * as bcrypt from 'bcryptjs';
+import { Cron } from '@nestjs/schedule';
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -69,5 +71,10 @@ export class UserService {
         HttpStatus.NOT_FOUND,
       );
     }
+  }
+
+  @Cron('10 * * * * *') //10초마다 로그 =>구독,결제 시 사용많이함 (정기결제같은거 **)
+  handleCron() {
+    this.logger.debug('cron logger');
   }
 }
