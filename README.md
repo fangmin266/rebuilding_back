@@ -87,9 +87,15 @@ nginx(templates, nginx.config) 설정후 포트 설정
 <img width="1001" alt="스크린샷 2023-05-19 오전 10 42 13" src="https://github.com/fangmin266/rebuilding_back/assets/123913446/4bde09b4-6071-4b7f-858d-389e0bd80017">
 <img width="1001" alt="스크린샷 2023-05-19 오전 10 43 07" src="https://github.com/fangmin266/rebuilding_back/assets/123913446/98c92959-e7c0-4735-9ad2-8c568a1a4dfc">
 
-7. interceptor
+7. interceptor (response 통일)
 
 8. pagination
+
+```
+Page<T> 페이징된 데이터와 메타 데이터를 담는 클래스(response)
+PageOptionDto 페이지 옵션을 담는 전송 객체(request)
+@query : 쿼리빌더의 검색 파라메터
+```
 
 9. relation (oneToone / oneToMany )
 
@@ -105,4 +111,3 @@ nginx(templates, nginx.config) 설정후 포트 설정
 - swagger
 - ssl
   https://peiiload.tistory.com/54
-- response 통일성
