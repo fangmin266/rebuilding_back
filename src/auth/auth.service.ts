@@ -24,18 +24,14 @@ export class AuthService {
   ) {}
   public async signup(createUserDto: CreateUserDto) {
     let alreadyExist = await this.userService.getByEmail(createUserDto.email);
-    try {
-      if (!alreadyExist) {
-        return await this.userService.create(createUserDto);
-      } else {
-        return 'already exist email';
-      }
-    } catch (error) {
+    if (alreadyExist) {
       throw new HttpException(
-        'something went wrong',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        'User already exists',
+        HttpStatus.CONFLICT, // 상태 코드 변경
       );
     }
+    this.userService.create(createUserDto);
+    await this.sendVerificationLink(createUserDto.email);
   }
 
   public async getAuthenticatedUser(email: string, plainTextPassword: string) {
@@ -113,6 +109,7 @@ export class AuthService {
       throw new BadRequestException('email is almost confirmed');
     }
     await this.userService.markEmailAsConfirmed(email);
+    return 'success';
   }
 
   public async checkAuth() {
@@ -166,17 +163,19 @@ export class AuthService {
     profile: string,
   ) {
     try {
-      console.log(email, username, password, profile, 'this~~~~~~~~~~');
       const user = await this.userService.getByEmail(email);
       if (!user) {
-        const signupuser = await this.signup({
+        //없을 경우 회원가입
+        await this.signup({
           email,
           username,
           password,
           profile,
         });
-        console.log(signupuser, 'signup');
-        return { user: signupuser };
+        return {
+          statusCode: 200,
+          message: 'signup success',
+        };
       } else {
         const token = this.generateJWT(user.id);
         return { user, token };

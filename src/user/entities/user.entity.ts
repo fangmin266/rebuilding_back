@@ -4,7 +4,7 @@ import { Exclude } from 'class-transformer';
 import { AbstractEntity } from './abstract.entity';
 import { Role, Source } from './source.enum';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import * as grabatar from 'gravatar';
 @Entity()
 export class User extends AbstractEntity {
   @ApiProperty()
@@ -47,5 +47,13 @@ export class User extends AbstractEntity {
   @BeforeInsert()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 10);
+  }
+
+  @BeforeInsert()
+  async generateProfile() {
+    this.profile = await grabatar.url(this.email, {
+      s: '100',
+      protocol: 'https',
+    });
   }
 }

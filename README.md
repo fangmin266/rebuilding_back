@@ -38,7 +38,6 @@ strategy, guard 설정
 : param 필수값 및 검증 체크
 ```
 
-- 상대경로 설정 : tsconfig.paths.json /tsconfig.json에 확장
 - jwt 생성과 활용
 
 ```
@@ -49,10 +48,10 @@ strategy, guard 설정
 
 4. email verification / third party(Bootpay, Twilio)
 
-- email verification
+- email verification(nodemailer)
 
 ```
-회원가입시 jwt토큰 포함한 인증메일발송(id) 및 확인(디코딩) - 노드메일러
+회원가입시 jwt토큰 포함한 인증메일발송(id) 및 확인(디코딩)
 ```
 
 - third party 본인인증
@@ -75,3 +74,35 @@ confirmPhoneVerification //인증번호 확인
 google - redirection uri 생성하려면 oAuth동의화면 설정필요
 kakao - client_id :rest api 키 / redirect_uri : 카카오개발자 >카카오로그인 클릭시 생성가능
 ```
+
+6. nginx with docker, ssl
+
+```
+docker-compose.yaml에 nginx services 추가
+nginx(templates, nginx.config) 설정후 포트 설정
+```
+
+<img width="1001" alt="스크린샷 2023-05-19 오전 10 41 40" src="https://github.com/fangmin266/rebuilding_back/assets/123913446/23a4b45a-b766-4c1a-9166-2bae5d65534f">
+<img width="1001" alt="스크린샷 2023-05-19 오전 10 43 27" src="https://github.com/fangmin266/rebuilding_back/assets/123913446/fa229ec8-dc44-4e8d-8871-43602be7490c">
+<img width="1001" alt="스크린샷 2023-05-19 오전 10 42 13" src="https://github.com/fangmin266/rebuilding_back/assets/123913446/4bde09b4-6071-4b7f-858d-389e0bd80017">
+<img width="1001" alt="스크린샷 2023-05-19 오전 10 43 07" src="https://github.com/fangmin266/rebuilding_back/assets/123913446/98c92959-e7c0-4735-9ad2-8c568a1a4dfc">
+
+7. interceptor
+
+8. pagination
+
+9. relation (oneToone / oneToMany )
+
+10. healthcheck with terminus
+
+11. s3 이미지 추가
+
+12. 기타
+
+- 상대경로 설정 : tsconfig.paths.json /tsconfig.json에 확장
+- gravatar (랜덤 이미지 생성)
+- 시스템 설계도(overview.html)
+- swagger
+- ssl
+  https://peiiload.tistory.com/54
+- response 통일성

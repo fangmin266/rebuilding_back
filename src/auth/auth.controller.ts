@@ -7,6 +7,8 @@ import {
   Res,
   Get,
   HttpStatus,
+  UseInterceptors,
+  HttpException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '@user/dto/create-user.dto';
@@ -30,6 +32,10 @@ import {
 } from '@nestjs/swagger';
 import { User } from '@root/user/entities/user.entity';
 import { UserService } from '@root/user/user.service';
+import {
+  Info,
+  TransformInterceptor,
+} from '@root/common/interceptor/transform.interceptor';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -41,31 +47,58 @@ export class AuthController {
   ) {}
 
   @Post('signup')
+  @UseInterceptors(TransformInterceptor)
   @ApiCreatedResponse({
     description: 'the record has been seccuess',
     type: User,
   })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  @ApiOperation({
+    summary: '회원가입',
+    description: '회원가입',
+  })
   async signup(@Body() createUserDto: CreateUserDto) {
-    const user = await this.authService.signup(createUserDto);
-    await this.authService.sendVerificationLink(createUserDto.email);
-    return user;
+    try {
+      const user = await this.authService.signup(createUserDto);
+      return user;
+    } catch (error) {
+      throw new HttpException(
+        'something went wrong',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
-  @UseGuards(LocalAuthGuard)
   @Post('login')
+  @UseInterceptors(TransformInterceptor)
+  @UseGuards(LocalAuthGuard)
+  @ApiResponse({ status: 200, description: 'login success' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  @ApiOperation({
+    summary: '로그인',
+    description: '로그인',
+  })
   async login(
     @Req() request: RequestWithUserInterface,
     @Res() response: Response,
   ) {
     const user = request.user;
     const token = await this.authService.generateJWT(user.id);
-    return response.send({
+    return response.status(response.statusCode).send({
+      ...Info,
       user,
       token,
     });
   }
 
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(TransformInterceptor)
+  @ApiResponse({ status: 200, description: 'profile get success' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  @ApiOperation({
+    summary: 'get profile(jwt 토근 bearer 인증)',
+    description: 'get profile',
+  })
   @Get('profile')
   async getProfile(@Req() request: RequestWithUserInterface) {
     const { user } = request;
@@ -73,18 +106,20 @@ export class AuthController {
   }
 
   @Post('email/confirm')
+  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'confirmation email' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({
     summary: '회원가입시 정송된 이메일로 인증',
-    description: '사용자 전체 조회',
+    description: '이메일 인증',
   })
   async confirm(@Body() confirmationDto: ConfirmEmailDto) {
     const email = await this.authService.decodedConfirmationToken(
       confirmationDto.token,
     );
-    await this.authService.confirmEmail(email);
-    return 'success';
+    const res = await this.authService.confirmEmail(email);
+    // console.log(res, 'res');
+    return res;
   }
 
   @Post('check') //본인인증 //boot pay docs 본인인증 2-1 (서버사이드 )
@@ -100,22 +135,51 @@ export class AuthController {
   }
 
   @Post('sms/verify')
+  @UseInterceptors(TransformInterceptor)
+  @ApiResponse({ status: 200, description: 'sms verification send success' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  @ApiOperation({
+    summary: 'sms 인증(twilio) 전송 성공',
+    description: 'sms 인증 전송 성공',
+  })
   async sendSMS(@Body('phone') phone: string): Promise<any> {
     return await this.smsService.initiatePhoneNumberVerification(phone);
   }
 
   @Post('sms/check')
+  @UseInterceptors(TransformInterceptor)
+  @ApiResponse({ status: 200, description: 'sms verification confirm success' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  @ApiOperation({
+    summary: 'sms 인증(twilio) 확인 성공',
+    description: 'sms 인증 확인 성공',
+  })
   async checkSMS(@Body('phone') phone: string, @Body('code') code: string) {
     return await this.smsService.confirmPhoneVerification(phone, code);
   }
 
   @Get('google')
   @UseGuards(GoogleOathGuard)
+  @UseInterceptors(TransformInterceptor)
+  @ApiResponse({ status: 200, description: 'google login success' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  @ApiOperation({
+    summary: 'google login',
+    description: 'google login',
+  })
   loginWithGoogle() {
     return HttpStatus.OK;
   }
+
   @Get('google/callback')
   @UseGuards(GoogleOathGuard)
+  @UseInterceptors(TransformInterceptor)
+  @ApiResponse({ status: 200, description: 'google login callback success' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  @ApiOperation({
+    summary: 'google login callback',
+    description: 'google login callback',
+  })
   async googleCallback(@Req() req) {
     const user = req.user;
     const email = user.email;
@@ -133,11 +197,18 @@ export class AuthController {
 
   @Get('facebook')
   @UseGuards(FacebookGuard)
+  @UseInterceptors(TransformInterceptor)
+  @ApiResponse({ status: 200, description: 'facebook login success' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
   loginWithFacebook() {
     return HttpStatusCode.Ok;
   }
+
   @Get('facebook/callback')
   @UseGuards(FacebookGuard)
+  @UseInterceptors(TransformInterceptor)
+  @ApiResponse({ status: 200, description: 'facebook login callback success' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
   async facebookCallback(@Req() req) {
     const user = req.user;
     const email = user._json.email;
@@ -155,12 +226,18 @@ export class AuthController {
 
   @Get('naver')
   @UseGuards(NaverGuard)
+  @UseInterceptors(TransformInterceptor)
+  @ApiResponse({ status: 200, description: 'naver login success' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
   loginWithNaver() {
     return HttpStatusCode.Ok;
   }
 
   @Get('naver/callback')
   @UseGuards(NaverGuard)
+  @UseInterceptors(TransformInterceptor)
+  @ApiResponse({ status: 200, description: 'naver login callback success' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
   async naverCallback(@Req() req) {
     const user = req.user;
     const userj = user._json;
@@ -180,12 +257,18 @@ export class AuthController {
 
   @Get('kakao')
   @UseGuards(KakaoGuard)
+  @UseInterceptors(TransformInterceptor)
+  @ApiResponse({ status: 200, description: 'kakao login success' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
   loginWithKakao() {
     return HttpStatusCode.Ok;
   }
 
   @Get('kakao/callback')
   @UseGuards(KakaoGuard)
+  @UseInterceptors(TransformInterceptor)
+  @ApiResponse({ status: 200, description: 'kakao login callback success' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
   async kakaoCallback(@Req() req) {
     const user = JSON.parse(req.user._raw);
     const email = user.kakao_account.email;

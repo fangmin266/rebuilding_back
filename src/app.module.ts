@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import * as Joi from '@hapi/joi'; //유성 검사
 import { EmailModule } from './email/email.module';
 import { SmsModule } from './sms/sms.module';
+import { TerminusModule } from '@nestjs/terminus';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -45,6 +46,7 @@ import { SmsModule } from './sms/sms.module';
     AuthModule,
     EmailModule,
     SmsModule,
+    TerminusModule,
   ],
   controllers: [AppController],
   providers: [AppService],
