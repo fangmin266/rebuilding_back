@@ -64,8 +64,10 @@ export class AuthService {
     //userId로 jwt생성
     console.log(userId, 'userid');
     const payload: TokenPayload = { userId };
-    const token = this.jwtService.sign(payload);
-    console.log(token, 'token');
+    const token = this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_SECRET'),
+      expiresIn: this.configService.get('JWT_EXPIRATION_TIME'),
+    });
     return token;
   }
 

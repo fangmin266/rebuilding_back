@@ -94,10 +94,12 @@ export class AuthController {
     const { cookie: refreshTokenCookie, token: refreshToken } =
       await this.authService.generateRefreshToken(user.id);
     await this.userService.setCurrnetsRefreshToken(refreshToken, user.id);
-    request.res.setHeader('Set-Cookie', [
-      accessTokenCookie,
-      refreshTokenCookie,
-    ]);
+    const cookies = [
+      `accessToken=${accessTokenCookie}; Path=/; HttpOnly`,
+      `refreshToken=${refreshTokenCookie}; Path=/; HttpOnly`,
+    ];
+
+    request.res.setHeader('Set-Cookie', cookies);
     return { user, accessTokenCookie };
   }
 

@@ -1,15 +1,22 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  CACHE_MANAGER,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdatedProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
-
+import { Cache } from 'cache-manager';
 @Injectable()
 export class ProductService {
   constructor(
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async create(createProductDto: CreateProductDto) {
@@ -24,8 +31,15 @@ export class ProductService {
   }
 
   async getAll() {
-    const products = await this.productRepository.find({});
-    return products;
+    const products = await this.productRepository.findBy({});
+    const cacheProduct = await this.cacheManager.get('products');
+    if (cacheProduct && cacheProduct?.length > 0) {
+      // cache 빈배열 이슈때문에 조건추가
+      return cacheProduct;
+    } else {
+      await this.cacheManager.set('products', products);
+      return products;
+    }
   }
 
   async getById(id: string) {

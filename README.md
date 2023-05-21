@@ -124,6 +124,9 @@ email로 토큰 생성하여 비밀번호변경
 13. redis in memory(추가,삭제 업데이트)
 
 ```
+redis, redis-commander docker-compose.yaml services에 추가후 volume 에 추가해 줄것
+nestjs 도커 서버 start되면 http://localhost:8081/로 접속하여 redis cache 확인
+--------------------------------------------------------------------
 docker 사용하지 않고 로컬에서 RedisInsight 샤용할시 포그라운드실행필요 (redis-server)
 ```
 
@@ -138,8 +141,11 @@ docker 사용하지 않고 로컬에서 RedisInsight 샤용할시 포그라운�
 - swagger
 - ssl
   https://peiiload.tistory.com/54
+  -----------------------------미처리
 - healthcheck with terminus
 - gratapa prometheus(monitoring tool)
 - throttler
 - 시스템 설계도(overview.html)
 - 시퀀스다이어그램
+- s3 이미지처리
+- jwtFromRequest부분 찾아보기
