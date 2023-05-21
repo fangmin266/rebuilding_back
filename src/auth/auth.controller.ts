@@ -10,6 +10,9 @@ import {
   UseInterceptors,
   HttpException,
   Put,
+  Inject,
+  CACHE_MANAGER,
+  HttpCode,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '@user/dto/create-user.dto';
@@ -39,6 +42,8 @@ import {
 } from '@root/common/interceptor/transform.interceptor';
 import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
 import { JwtService } from '@nestjs/jwt';
+import { Cache } from 'cache-manager';
+
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
@@ -46,7 +51,8 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly userService: UserService,
     private readonly smsService: SmsService,
-    private readonly jwtService: JwtService,
+    @Inject(CACHE_MANAGER)
+    private cacheManager: Cache,
   ) {}
 
   @Post('signup')
@@ -81,19 +87,33 @@ export class AuthController {
     summary: '로그인',
     description: '로그인',
   })
-  async login(
-    @Req() request: RequestWithUserInterface,
-    @Res() response: Response,
-  ) {
+  async login(@Req() request: RequestWithUserInterface) {
     const user = request.user;
-    const token = await this.authService.generateJWT(user.id);
-    return response.status(response.statusCode).send({
-      ...Info,
-      user,
-      token,
-    });
+    await this.cacheManager.set(user.id, user);
+    const accessTokenCookie = await this.authService.generateJWT(user.id);
+    const { cookie: refreshTokenCookie, token: refreshToken } =
+      await this.authService.generateRefreshToken(user.id);
+    await this.userService.setCurrnetsRefreshToken(refreshToken, user.id);
+    request.res.setHeader('Set-Cookie', [
+      accessTokenCookie,
+      refreshTokenCookie,
+    ]);
+    return { user, accessTokenCookie };
   }
 
+  @Post('logout')
+  @ApiOperation({ summary: 'logout', description: 'logout' })
+  @ApiResponse({ status: 200, description: 'logout success' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  async logout(@Req() request: RequestWithUserInterface) {
+    await this.cacheManager.del(request.user.id);
+    await this.userService.removeRefreshToken(request.user.id);
+    request.res.setHeader('Set-Cookie', this.authService.getCookiesForLogout());
+  }
+
+  @Get('profile')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'profile get success' })
@@ -102,7 +122,6 @@ export class AuthController {
     summary: 'get profile(jwt 토근 bearer 인증)',
     description: 'get profile',
   })
-  @Get('profile')
   async getProfile(@Req() request: RequestWithUserInterface) {
     const { user } = request;
     return user;

@@ -15,6 +15,7 @@ import { EmailService } from '@root/email/email.service';
 import Bootpay from '@bootpay/backend-js';
 import { ConfirmAuthenticate } from '@root/user/dto/confirm-authenticate.dto';
 import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -66,6 +67,25 @@ export class AuthService {
     const token = this.jwtService.sign(payload);
     console.log(token, 'token');
     return token;
+  }
+
+  public generateRefreshToken(userId: string) {
+    const payload: TokenPayload = { userId };
+    const token = this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_REFRESH_SECRET'),
+      expiresIn: this.configService.get('JWT_REFRESH_EXPIRATION_TIME'),
+    });
+    const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+      'JWT_REFRESH_EXPIRATION_TIME',
+    )}`;
+    return { cookie, token };
+  }
+
+  public getCookiesForLogout() {
+    return [
+      `Authentication=; HttpOnly; Path=/; Max-Age=0`,
+      `Refresh=; HttpOnly; Path=/; Max-Age=0`,
+    ];
   }
 
   public sendVerificationLink(email: string) {

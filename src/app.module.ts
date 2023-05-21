@@ -15,6 +15,7 @@ import { CommentModule } from './comment/comment.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LibraryModule } from './library/library.module';
 import { AppConfigModule } from './config/config.module';
+import { RedisCacheModule } from './redis-cache/redis-cache.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { AppConfigModule } from './config/config.module';
     ScheduleModule.forRoot(),
     LibraryModule,
     ConfigModule,
+    RedisCacheModule,
   ],
   controllers: [AppController],
   providers: [AppService],

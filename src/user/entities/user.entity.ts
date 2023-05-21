@@ -1,5 +1,6 @@
 import {
   BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   JoinColumn,
@@ -66,14 +67,21 @@ export class User extends AbstractEntity {
   @JoinTable()
   public fundingProducts: Product[];
 
+  @ApiProperty()
+  @Column({ nullable: true })
+  @Exclude()
+  public currentHashedRefreshToken?: string;
+
+  @BeforeUpdate()
   @BeforeInsert()
-  async generateProfile() {
+  async generateSomething() {
     this.profile_img = await grabatar.url(this.email, {
+      // generate profile image
       s: '100',
       protocol: 'https',
     });
 
-    const saltValue = await bcrypt.genSalt(10); //hash password
+    const saltValue = await bcrypt.genSalt(10); //generate hash password
     this.password = await bcrypt.hash(this.password, saltValue);
   }
 }

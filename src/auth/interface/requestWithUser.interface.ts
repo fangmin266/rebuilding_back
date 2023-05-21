@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { User } from '@root/user/entities/user.entity';
+import { Request } from 'express';
 
 export interface RequestWithUserInterface extends Request {
   user: User;

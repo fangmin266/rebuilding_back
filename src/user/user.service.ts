@@ -73,6 +73,19 @@ export class UserService {
     }
   }
 
+  async setCurrnetsRefreshToken(refreshToken: string, userId: string) {
+    const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await this.userRepository.update(userId, {
+      currentHashedRefreshToken,
+    });
+  }
+
+  async removeRefreshToken(userId: string) {
+    return this.userRepository.update(userId, {
+      currentHashedRefreshToken: null,
+    });
+  }
+
   @Cron('10 * * * * *') //10초마다 로그 =>구독,결제 시 사용많이함 (정기결제같은거 **)
   handleCron() {
     this.logger.debug('cron logger');
