@@ -43,7 +43,7 @@ import {
 import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
 
 import { Cache } from 'cache-manager';
-import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { Source } from '@root/user/entities/source.enum';
 
 @ApiTags('auth')
@@ -84,7 +84,6 @@ export class AuthController {
   @UseInterceptors(TransformInterceptor)
   @UseGuards(LocalAuthGuard)
   @UseGuards(ThrottlerGuard)
-  // @Throttle(5, 30) //개별 throttle설정
   @ApiResponse({ status: 200, description: 'login success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({
@@ -305,12 +304,13 @@ export class AuthController {
     const user = JSON.parse(req.user._raw);
     const email = user.kakao_account.email;
     const username = user.properties.nickName;
-    const password_before = user.id + email;
+    const application_id = user.id;
     const photo = user.kakao_account.profile.profile_image_url;
+    console.log(user, 'user');
     const loginRes = await this.authService.socialLogin(
       email,
       username,
-      password_before,
+      application_id,
       photo,
       Source.KAKAO,
     );

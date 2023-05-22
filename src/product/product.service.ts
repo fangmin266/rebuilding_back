@@ -5,12 +5,14 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
+
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdatedProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { Cache } from 'cache-manager';
+
 @Injectable()
 export class ProductService {
   constructor(
@@ -24,6 +26,7 @@ export class ProductService {
     if (alreadyExist === null) {
       const newProduct = this.productRepository.create(createProductDto);
       await this.productRepository.save(newProduct);
+      await this.getAllProducts();
       return newProduct;
     } else {
       throw new HttpException('title이 존재합니다', HttpStatus.BAD_REQUEST);
@@ -31,15 +34,13 @@ export class ProductService {
   }
 
   async getAll() {
-    const products = await this.productRepository.findBy({});
     const cacheProduct = await this.cacheManager.get('products');
-    if (cacheProduct && cacheProduct?.length > 0) {
-      // cache 빈배열 이슈때문에 조건추가
-      return cacheProduct;
-    } else {
-      await this.cacheManager.set('products', products);
-      return products;
-    }
+    return cacheProduct;
+  }
+
+  async getAllProducts() {
+    const products = await this.productRepository.findBy({});
+    await this.cacheManager.set('products', products);
   }
 
   async getById(id: string) {
@@ -75,6 +76,7 @@ export class ProductService {
             price: updatedProductDto.price,
           },
         );
+        await this.getAllProducts();
         return 'success';
       } catch (error) {
         throw new HttpException('업데이트에러.', HttpStatus.BAD_REQUEST);

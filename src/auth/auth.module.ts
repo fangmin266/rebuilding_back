@@ -29,7 +29,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     JwtModule.register({}), //service 모듈내부에서 적용을하려면 이렇게 적용
     ThrottlerModule.forRoot({
       ttl: 200,
-      limit: 1, //60초동안 10번만 할수 있음 - Ddos 공격에 대비 , bot 공격 대비
+      limit: 20, //60초동안 10번만 할수 있음 - Ddos 공격에 대비 , bot 공격 대비
     }),
   ],
   controllers: [AuthController],

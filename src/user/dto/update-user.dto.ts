@@ -1,4 +1,20 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateUserDto } from './create-user.dto';
+import { AbstractEntity } from '../entities/abstract.entity';
 
-export class UpdateUserDto extends PartialType(CreateUserDto) {}
+import { IsArray, IsNotEmpty, IsString } from 'class-validator';
+
+import { Role } from '../entities/source.enum';
+
+export class UpdateUserDto extends AbstractEntity {
+  @IsString()
+  @IsNotEmpty()
+  public username: string;
+
+  @IsString()
+  public profile_img: string;
+
+  @IsArray()
+  public userrole: Role[];
+
+  @IsString()
+  public currentHashedRefreshToken?: string;
+}

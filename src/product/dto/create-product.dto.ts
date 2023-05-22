@@ -5,6 +5,10 @@ import { Entity } from 'typeorm';
 
 @Entity()
 export class CreateProductDto extends AbstractEntity {
+  @IsNumber()
+  @IsNotEmpty()
+  public productNum: string;
+
   @IsString()
   @IsNotEmpty()
   public title: string;
@@ -36,8 +40,4 @@ export class CreateProductDto extends AbstractEntity {
   @IsNumber()
   @IsNotEmpty()
   public price: number;
-
-  @IsNumber()
-  @IsNotEmpty()
-  public productNum: string;
 }

@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import { Source } from '../entities/source.enum';
 
-export class CreateUserDto {
+export class createCommon {
   @IsEmail()
   email: string;
 
@@ -18,6 +18,11 @@ export class CreateUserDto {
   @IsNotEmpty()
   username: string;
 
+  @IsString()
+  profile_img: string;
+}
+
+export class CreateUserDto extends createCommon {
   @IsString()
   @IsNotEmpty()
   @MinLength(7)
@@ -27,22 +32,9 @@ export class CreateUserDto {
     each: true,
   })
   password: string;
-
-  @IsString()
-  profile_img: string;
 }
 
-export class CreateSocialUserDto {
-  @IsEmail()
-  email: string;
-
-  @IsString()
-  @IsNotEmpty()
-  username: string;
-
-  @IsString()
-  profile_img: string;
-
+export class CreateSocialUserDto extends createCommon {
   @IsString()
   application_id: string;
 
