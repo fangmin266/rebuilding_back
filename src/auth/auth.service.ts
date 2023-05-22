@@ -16,6 +16,7 @@ import Bootpay from '@bootpay/backend-js';
 import { ConfirmAuthenticate } from '@root/user/dto/confirm-authenticate.dto';
 import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
 import { Source } from '@root/user/entities/source.enum';
+import { RepoName } from '@root/user/entities/error.enum';
 
 @Injectable()
 export class AuthService {
@@ -40,7 +41,10 @@ export class AuthService {
   public async checkUserExists(email: string): Promise<void> {
     const alreadyExist = await this.userService.getByEmail(email);
     if (alreadyExist) {
-      throw new HttpException('User already exists', HttpStatus.CONFLICT);
+      throw new HttpException(
+        `${RepoName.USER} already exists`,
+        HttpStatus.CONFLICT,
+      );
     }
   }
 
@@ -50,7 +54,10 @@ export class AuthService {
       await this.verifyPassword(plainTextPassword, user.password);
       return user;
     } catch (error) {
-      throw new HttpException('no user here', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        `no ${RepoName.USER} here`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 

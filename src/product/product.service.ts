@@ -12,7 +12,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { Cache } from 'cache-manager';
+import { RepoName } from '@root/user/entities/error.enum';
 
+export const repo = RepoName.PRODUCT;
 @Injectable()
 export class ProductService {
   constructor(
@@ -26,7 +28,7 @@ export class ProductService {
     if (alreadyExist === null) {
       const newProduct = this.productRepository.create(createProductDto);
       await this.productRepository.save(newProduct);
-      await this.getAllProducts();
+      await this.setAllProductCache();
       return newProduct;
     } else {
       throw new HttpException('title이 존재합니다', HttpStatus.BAD_REQUEST);
@@ -38,7 +40,7 @@ export class ProductService {
     return cacheProduct;
   }
 
-  async getAllProducts() {
+  async setAllProductCache() {
     const products = await this.productRepository.findBy({});
     await this.cacheManager.set('products', products);
   }
@@ -49,10 +51,10 @@ export class ProductService {
       if (findId && findId !== null) {
         return findId;
       } else {
-        throw new HttpException('id가 없습니다.', HttpStatus.NOT_FOUND);
+        throw new HttpException(`no ${repo} id`, HttpStatus.NOT_FOUND);
       }
     } catch (error) {
-      throw new HttpException('id가 없습니다.', HttpStatus.NOT_FOUND);
+      throw new HttpException(`${repo}byid error`, HttpStatus.NOT_FOUND);
     }
   }
 
@@ -76,10 +78,10 @@ export class ProductService {
             price: updatedProductDto.price,
           },
         );
-        await this.getAllProducts();
+        await this.setAllProductCache();
         return 'success';
       } catch (error) {
-        throw new HttpException('업데이트에러.', HttpStatus.BAD_REQUEST);
+        throw new HttpException(`${repo} update error`, HttpStatus.BAD_REQUEST);
       }
     } else {
       throw new HttpException(
@@ -91,23 +93,14 @@ export class ProductService {
 
   async deleteProduct(id: string) {
     const findId = await this.getById(id);
-
     try {
       if (findId) {
-        if (id) await this.productRepository.delete({ id });
-        else
-          throw new HttpException(
-            '입력한 id가 없습니다.',
-            HttpStatus.NOT_FOUND,
-          );
+        await this.productRepository.delete({ id });
       } else {
-        throw new HttpException(
-          '삭제할 id정보가 없습니다.',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException(`no ${repo} id `, HttpStatus.NOT_FOUND);
       }
     } catch (error) {
-      throw new HttpException('삭제에러.', HttpStatus.BAD_REQUEST);
+      throw new HttpException(`delete ${repo} error`, HttpStatus.BAD_REQUEST);
     }
   }
 }

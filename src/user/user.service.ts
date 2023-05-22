@@ -16,13 +16,17 @@ import { PageMetaDto } from '@root/common/dto/page-meta.dto';
 import * as bcrypt from 'bcryptjs';
 import { Cron } from '@nestjs/schedule';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { RepoName } from './entities/error.enum';
+import { Cache } from 'cache-manager';
 
+export const repo = RepoName.USER;
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async getAllUsers(pageOptionDto: PageOptionDto): Promise<Page<User>> {
@@ -46,19 +50,36 @@ export class UserService {
     const user = await this.userRepository.findOneBy({ id });
     if (user) return user;
     throw new HttpException(
-      'user with this id does not exit',
+      `${repo} with this id does not exit`,
       HttpStatus.NOT_FOUND,
     );
   }
+
+  async getIdCache() {
+    const user = await this.cacheManager.get('user');
+    if (user) return user;
+    throw new HttpException(
+      `${repo} with this id does not exit`,
+      HttpStatus.NOT_FOUND,
+    );
+  }
+
+  async setIdCache(id: string) {
+    const user = await this.userRepository.findOneBy({ id });
+    await this.cacheManager.set('user', user);
+  }
+
   async create(userData: CreateUserDto) {
     const newUser = this.userRepository.create(userData);
     await this.userRepository.save(newUser);
+    await this.setIdCache(newUser.id);
     return newUser;
   }
 
   async createSocial(userData: CreateSocialUserDto) {
     const newUser = this.userRepository.create(userData);
     await this.userRepository.save(newUser);
+    await this.setIdCache(newUser.id);
     return newUser;
   }
 
@@ -75,11 +96,12 @@ export class UserService {
             currentHashedRefreshToken: updatedUserDto.currentHashedRefreshToken,
           },
         );
+        await this.setIdCache(id);
       } catch (error) {
-        throw new HttpException('업데이트에러.', HttpStatus.BAD_REQUEST);
+        throw new HttpException(`${repo} update error`, HttpStatus.BAD_REQUEST);
       }
     } else {
-      throw new HttpException('수정할 user 없습니다.', HttpStatus.BAD_REQUEST);
+      throw new HttpException(`no ${repo}`, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -89,19 +111,13 @@ export class UserService {
       if (findId) {
         if (id) {
           await this.userRepository.delete({ id });
-        } else
-          throw new HttpException(
-            '입력한 id가 없습니다.',
-            HttpStatus.NOT_FOUND,
-          );
+          await this.cacheManager.del('user');
+        } else throw new HttpException(`no ${repo} id`, HttpStatus.NOT_FOUND);
       } else {
-        throw new HttpException(
-          '삭제할 id정보가 없습니다.',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException(`no delete ${repo}  id`, HttpStatus.NOT_FOUND);
       }
     } catch (error) {
-      throw new HttpException('삭제에러.', HttpStatus.BAD_REQUEST);
+      throw new HttpException(`${repo} delete error`, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -126,7 +142,7 @@ export class UserService {
       return findUser;
     } else {
       throw new HttpException(
-        'User with email does not exist',
+        `${repo} with email does not exist`,
         HttpStatus.NOT_FOUND,
       );
     }

@@ -306,7 +306,6 @@ export class AuthController {
     const username = user.properties.nickName;
     const application_id = user.id;
     const photo = user.kakao_account.profile.profile_image_url;
-    console.log(user, 'user');
     const loginRes = await this.authService.socialLogin(
       email,
       username,
