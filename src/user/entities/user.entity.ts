@@ -12,32 +12,30 @@ import * as bcrypt from 'bcryptjs';
 import { Exclude } from 'class-transformer';
 import { AbstractEntity } from './abstract.entity';
 import { Role, Source } from './source.enum';
-import { ApiProperty } from '@nestjs/swagger';
 import * as grabatar from 'gravatar';
 import { Profile } from '@root/profile/entities/profile.entity';
 import { Product } from '@root/product/entities/product.entity';
+
 @Entity()
 export class User extends AbstractEntity {
-  @ApiProperty()
   @Column({ nullable: true })
   public username: string;
 
-  @ApiProperty()
   @Column({ unique: true })
   public email: string;
 
-  @ApiProperty()
   @Column({ nullable: true })
-  @Exclude() //password 출력되지 x
+  @Exclude() // password 출력되지 않음
   public password?: string;
 
-  @ApiProperty()
   @Column({ default: false })
   public isEmailConfirmed: boolean;
 
-  @ApiProperty()
   @Column({ nullable: true })
   profile_img: string;
+
+  @Column({ nullable: true })
+  application_id: string;
 
   @OneToOne(() => Profile, {
     eager: true,
@@ -46,7 +44,6 @@ export class User extends AbstractEntity {
   @JoinColumn()
   public profile: Profile;
 
-  @ApiProperty()
   @Column({
     type: 'enum',
     enum: Source,
@@ -54,7 +51,6 @@ export class User extends AbstractEntity {
   })
   public source: Source;
 
-  @ApiProperty()
   @Column({
     type: 'enum',
     enum: Role,
@@ -67,7 +63,6 @@ export class User extends AbstractEntity {
   @JoinTable()
   public fundingProducts: Product[];
 
-  @ApiProperty()
   @Column({ nullable: true })
   @Exclude()
   public currentHashedRefreshToken?: string;
@@ -81,7 +76,10 @@ export class User extends AbstractEntity {
       protocol: 'https',
     });
 
-    const saltValue = await bcrypt.genSalt(10); //generate hash password
-    this.password = await bcrypt.hash(this.password, saltValue);
+    //password가 있을때만
+    if (this.password) {
+      const saltValue = await bcrypt.genSalt(10); // generate hashed password
+      this.password = await bcrypt.hash(this.password, saltValue);
+    }
   }
 }

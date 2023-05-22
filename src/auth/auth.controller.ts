@@ -44,6 +44,7 @@ import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
 
 import { Cache } from 'cache-manager';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { Source } from '@root/user/entities/source.enum';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -211,13 +212,15 @@ export class AuthController {
     const user = req.user;
     const email = user.email;
     const username = user.displayName;
-    const password_before = user.id + email;
     const photo = user.picture;
+    const application_id = user.id;
+
     const loginRes = await this.authService.socialLogin(
       email,
       username,
-      password_before,
+      application_id,
       photo,
+      Source.GOOGLE,
     );
     return loginRes;
   }
@@ -247,6 +250,7 @@ export class AuthController {
       username,
       password_before,
       photo,
+      Source.FACEBOOK,
     );
     return loginRes;
   }
@@ -277,6 +281,7 @@ export class AuthController {
       username,
       password_before,
       photo,
+      Source.NAVER,
     );
 
     return loginRes;
@@ -307,6 +312,7 @@ export class AuthController {
       username,
       password_before,
       photo,
+      Source.KAKAO,
     );
     return loginRes;
   }

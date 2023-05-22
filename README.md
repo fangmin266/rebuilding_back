@@ -134,11 +134,15 @@ docker 사용하지 않고 로컬에서 RedisInsight 샤용할시 포그라운�
     정기 구독이나 정기 결제시 많이 사용하는 기능
 
 15. throttler
-    ddos 공격에 대비하기 위한 속도 제한 기술 -사용하려는 모듈에 전역적으로 설치할경우
+    ddos 공격에 대비하기 위한 속도 제한 기술
+
+-사용하려는 모듈에 전역적으로 설치할경우
 
 ```
 module imports에 ttl, limit 설정 + provider에 추가 옵션값 설정
 ```
+
+<img width="1040" alt="스크린샷 2023-05-22 오후 3 33 33" src="https://github.com/fangmin266/rebuilding_back/assets/123913446/4ccb4894-65ee-4bf3-bff3-3093c66daa7d">
 
 -개별 controller에 사용할 경우
 
@@ -157,12 +161,11 @@ https://docs.nestjs.com/security/rate-limiting
 - swagger
 - ssl
   https://peiiload.tistory.com/54
-
------------------------------미처리
-
 - healthcheck with terminus
 - gratapa prometheus(monitoring tool)
 - throttler
+  -----------------------------미처리
+
 - 시스템 설계도(overview.html)
 - 시퀀스다이어그램
 - s3 이미지처리

@@ -5,14 +5,12 @@ import { Entity } from 'typeorm';
 
 @Entity()
 export class CreateCommentDto {
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   public contents: string;
 
   public product: Product;
 
-  @ApiProperty()
   @IsNotEmpty()
   public productId: string;
 }

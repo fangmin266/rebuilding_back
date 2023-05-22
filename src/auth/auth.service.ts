@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto } from '@user/dto/create-user.dto';
+import { CreateSocialUserDto, CreateUserDto } from '@user/dto/create-user.dto';
 import { UserService } from '@user/user.service';
 import * as bcrypt from 'bcryptjs';
 import { TokenPayload } from './interface/tokenPayload.interface';
@@ -15,6 +15,7 @@ import { EmailService } from '@root/email/email.service';
 import Bootpay from '@bootpay/backend-js';
 import { ConfirmAuthenticate } from '@root/user/dto/confirm-authenticate.dto';
 import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
+import { Source } from '@root/user/entities/source.enum';
 
 @Injectable()
 export class AuthService {
@@ -24,16 +25,23 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly emailService: EmailService,
   ) {}
+
   public async signup(createUserDto: CreateUserDto) {
-    let alreadyExist = await this.userService.getByEmail(createUserDto.email);
-    if (alreadyExist) {
-      throw new HttpException(
-        'User already exists',
-        HttpStatus.CONFLICT, // 상태 코드 변경
-      );
-    }
+    await this.checkUserExists(createUserDto.email);
     this.userService.create(createUserDto);
     await this.sendVerificationLink(createUserDto.email);
+  }
+
+  public async socialSignup(createSocialUserDto: CreateSocialUserDto) {
+    await this.checkUserExists(createSocialUserDto.email);
+    this.userService.createSocial(createSocialUserDto);
+  }
+
+  public async checkUserExists(email: string): Promise<void> {
+    const alreadyExist = await this.userService.getByEmail(email);
+    if (alreadyExist) {
+      throw new HttpException('User already exists', HttpStatus.CONFLICT);
+    }
   }
 
   public async getAuthenticatedUser(email: string, plainTextPassword: string) {
@@ -182,18 +190,20 @@ export class AuthService {
   public async socialLogin(
     email: string,
     username: string,
-    password: string,
+    application_id: string,
     profile_img: string,
+    source: Source = Source.GOOGLE,
   ) {
     try {
       const user = await this.userService.getByEmail(email);
       if (!user) {
         //없을 경우 회원가입
-        await this.signup({
+        await this.socialSignup({
           email,
           username,
-          password,
           profile_img,
+          application_id,
+          source,
         });
         return {
           statusCode: 200,
