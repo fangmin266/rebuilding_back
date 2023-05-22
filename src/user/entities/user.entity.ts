@@ -72,7 +72,7 @@ export class User extends AbstractEntity {
   @Exclude()
   public currentHashedRefreshToken?: string;
 
-  @BeforeUpdate()
+  // @BeforeUpdate() //typeorm 이슈 사용할수 x , userRepository.update 대신 .save 사용
   @BeforeInsert()
   async generateSomething() {
     this.profile_img = await grabatar.url(this.email, {

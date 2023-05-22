@@ -41,8 +41,9 @@ import {
   TransformInterceptor,
 } from '@root/common/interceptor/transform.interceptor';
 import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
-import { JwtService } from '@nestjs/jwt';
+
 import { Cache } from 'cache-manager';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -81,6 +82,8 @@ export class AuthController {
   @Post('login')
   @UseInterceptors(TransformInterceptor)
   @UseGuards(LocalAuthGuard)
+  @UseGuards(ThrottlerGuard)
+  // @Throttle(5, 30) //개별 throttle설정
   @ApiResponse({ status: 200, description: 'login success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({

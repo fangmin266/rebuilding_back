@@ -13,6 +13,7 @@ import { GoogleStrategy } from '@root/strategy/google.strategy';
 import { FacebookStrategy } from '@root/strategy/facebook.strategy';
 import { NaverStrategy } from '@root/strategy/naver.strategy';
 import { KakaoStrategy } from '@root/strategy/kakao.strategy';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -20,12 +21,16 @@ import { KakaoStrategy } from '@root/strategy/kakao.strategy';
     PassportModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      cache: true,
+      cache: false,
       expandVariables: true,
     }),
     EmailModule,
     SmsModule,
     JwtModule.register({}), //service 모듈내부에서 적용을하려면 이렇게 적용
+    ThrottlerModule.forRoot({
+      ttl: 200,
+      limit: 1, //60초동안 10번만 할수 있음 - Ddos 공격에 대비 , bot 공격 대비
+    }),
   ],
   controllers: [AuthController],
   providers: [
@@ -36,6 +41,12 @@ import { KakaoStrategy } from '@root/strategy/kakao.strategy';
     FacebookStrategy,
     NaverStrategy,
     KakaoStrategy,
+    // {
+    //   //throttler 전역사용하기 위해 설정해줘야함
+    //   //https://docs.nestjs.com/security/rate-limiting
+    //   provide: APP_GUARD,
+    //   useClass: ThrottlerGuard,
+    // },
   ],
 })
 export class AuthModule {}
