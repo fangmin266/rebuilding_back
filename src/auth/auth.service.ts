@@ -1,7 +1,9 @@
 import {
   BadRequestException,
+  CACHE_MANAGER,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -17,6 +19,7 @@ import { ConfirmAuthenticate } from '@root/user/dto/confirm-authenticate.dto';
 import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
 import { Source } from '@root/user/entities/source.enum';
 import { RepoName } from '@root/user/entities/error.enum';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class AuthService {
@@ -25,6 +28,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly emailService: EmailService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   public async signup(createUserDto: CreateUserDto) {
@@ -122,6 +126,21 @@ export class AuthService {
       subject: 'email confirm',
       text,
     });
+  }
+
+  public async sendRandomNumberwithEmail(email: string) {
+    const ifhascache = await this.cacheManager.get('randomcache_email');
+    if (ifhascache) {
+      return this.sendEmailRandomCode(ifhascache);
+    } else {
+      const findUser = await this.userService.getByEmail(email);
+      if (!findUser) {
+        this.cacheManager.set('randomcache_email', email);
+        return await this.sendEmailRandomCode(email);
+      } else {
+        throw new HttpException(`already in use email`, HttpStatus.CONFLICT);
+      }
+    }
   }
 
   public async decodedConfirmationToken(token: string) {
@@ -256,5 +275,28 @@ export class AuthService {
       subject: 'password confirnation',
       text,
     });
+  }
+
+  public async sendEmailRandomCode(email: string) {
+    const num = await this.generateRandomCode();
+    const text = `
+          <div style='width:100%; border:red 1px solid; padding:20px'>
+            <h1 style='color:red'>rebuilding-back</h1>
+            <div>인증번호:${num}</div>
+          </div>
+          `;
+    await this.emailService.sendMail({
+      to: email,
+      subject: 'rebuildilng_back -이메일 인증번호',
+      html: text,
+    });
+    return num;
+  }
+  public async generateRandomCode() {
+    let str = '';
+    for (let i = 0; i < 6; i++) {
+      str += Math.floor(Math.random() * 10);
+    }
+    return str;
   }
 }

@@ -37,7 +37,7 @@ export class ProductController {
   }
 
   @Get('all')
-  @UseGuards(RoleGuard(Role.USER))
+  // @UseGuards(RoleGuard(Role.USER))
   @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: `get ${repo} all` })
   @ApiResponse({ status: 401, description: 'forbidden' })

@@ -13,6 +13,7 @@ import {
   Inject,
   CACHE_MANAGER,
   HttpCode,
+  Header,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '@user/dto/create-user.dto';
@@ -29,6 +30,7 @@ import { HttpStatusCode } from 'axios';
 import { NaverGuard } from '@root/guard/naverAuth.guard';
 import { KakaoGuard } from '@root/guard/kakaoAuth.guard';
 import {
+  ApiBody,
   ApiCreatedResponse,
   ApiOperation,
   ApiResponse,
@@ -45,6 +47,8 @@ import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
 import { Cache } from 'cache-manager';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { Source } from '@root/user/entities/source.enum';
+import { EmailVerifiateDto } from '@root/email/dto/email-verificate.dto';
+import { EmailAuthDto } from '@root/email/dto/email-auth.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -81,6 +85,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @Header('Access-Control-Expose-Headers', 'Set-Cookie')
   @UseInterceptors(TransformInterceptor)
   @UseGuards(LocalAuthGuard)
   @UseGuards(ThrottlerGuard)
@@ -103,7 +108,7 @@ export class AuthController {
     ];
 
     request.res.setHeader('Set-Cookie', cookies);
-    return { user, accessTokenCookie };
+    return user;
   }
 
   @Post('logout')
@@ -328,6 +333,16 @@ export class AuthController {
     const findUser = await this.userService.findPasswordByEmail(email);
     await this.authService.sendPasswordVerification(findUser.email);
     return 'successful send password link';
+  }
+
+  @Post('sendemail')
+  @UseInterceptors(TransformInterceptor)
+  @ApiCreatedResponse({ description: '결과' })
+  @ApiResponse({ status: 201, description: ' 이메일 인증 성공' })
+  @ApiOperation({ summary: '이메일로 인증', description: '이메일로 인증' })
+  async sendVerifyLink(@Body('email') email: string) {
+    const RandomNum = await this.authService.sendRandomNumberwithEmail(email);
+    return { random: RandomNum };
   }
 
   @Put('password/changebyemail')
