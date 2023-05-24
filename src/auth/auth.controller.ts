@@ -347,11 +347,26 @@ export class AuthController {
   @Post('sendemail')
   @UseInterceptors(TransformInterceptor)
   @ApiCreatedResponse({ description: '결과' })
-  @ApiResponse({ status: 201, description: ' 이메일 인증 성공' })
-  @ApiOperation({ summary: '이메일로 인증', description: '이메일로 인증' })
-  async sendVerifyLink(@Body('email') email: string) {
+  @ApiResponse({ status: 201, description: ' 이메일 랜덤넘버 전송 성공' })
+  @ApiOperation({
+    summary: '이메일로 랜덤넘버 전송',
+    description: '이메일로 랜덤넘버 전송',
+  })
+  async sendRandomLink(@Body('email') email: string) {
     const RandomNum = await this.authService.sendRandomNumberwithEmail(email);
     return { random: RandomNum };
+  }
+
+  @Post('link/passwordreset')
+  @UseInterceptors(TransformInterceptor)
+  @ApiCreatedResponse({ description: '결과' })
+  @ApiResponse({ status: 201, description: 'password reset link success' })
+  @ApiOperation({
+    summary: 'password reset link success',
+    description: 'password reset link success',
+  })
+  async passwordReset(@Body('email') email: string) {
+    await this.authService.sendVerificationLink(email);
   }
 
   @Put('password/changebyemail')

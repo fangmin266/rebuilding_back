@@ -20,7 +20,6 @@ import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
 import { Source } from '@root/user/entities/source.enum';
 import { RepoName } from '@root/user/entities/error.enum';
 import { Cache } from 'cache-manager';
-import { CustomErrorResponse } from '@root/common/interceptor/custom-error-response';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +34,6 @@ export class AuthService {
   public async signup(createUserDto: CreateUserDto) {
     await this.checkUserExists(createUserDto.email);
     this.userService.create(createUserDto);
-    await this.sendVerificationLink(createUserDto.email);
   }
 
   public async socialSignup(createSocialUserDto: CreateSocialUserDto) {
