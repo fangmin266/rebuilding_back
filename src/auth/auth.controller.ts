@@ -106,7 +106,6 @@ export class AuthController {
       `accessToken=${accessTokenCookie}; Path=/; HttpOnly`,
       `refreshToken=${refreshTokenCookie}; Path=/; HttpOnly`,
     ];
-
     request.res.setHeader('Set-Cookie', cookies);
     return user;
   }
@@ -142,7 +141,7 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'confirmation email' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({
-    summary: '회원가입시 정송된 이메일로 인증',
+    summary: '회원가입시 전송된 이메일로 인증',
     description: '이메일 인증',
   })
   async confirm(@Body() confirmationDto: ConfirmEmailDto) {
@@ -333,6 +332,16 @@ export class AuthController {
     const findUser = await this.userService.findPasswordByEmail(email);
     await this.authService.sendPasswordVerification(findUser.email);
     return 'successful send password link';
+  }
+
+  @Post('findemail')
+  @UseInterceptors(TransformInterceptor)
+  @ApiCreatedResponse({ description: '결과' })
+  @ApiResponse({ status: 201, description: ' 이메일 찾기' })
+  @ApiOperation({ summary: ' 이메일 찾기', description: ' 이메일 찾기' })
+  async findEmail(@Body('email') email: string) {
+    const findEmail = await this.userService.getByEmail(email);
+    if (!findEmail) throw new HttpException(`no email`, HttpStatus.BAD_REQUEST);
   }
 
   @Post('sendemail')

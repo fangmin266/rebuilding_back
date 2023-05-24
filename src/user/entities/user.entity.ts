@@ -68,10 +68,10 @@ export class User extends AbstractEntity {
   public currentHashedRefreshToken?: string;
 
   @Column({ default: false })
-  isMarketing: false;
+  isMarketing: boolean;
 
   @Column({ default: false })
-  isPersonalInfo: false;
+  isPersonalInfo: boolean;
 
   // @BeforeUpdate() //typeorm 이슈 사용할수 x , userRepository.update 대신 .save 사용
   @BeforeInsert()

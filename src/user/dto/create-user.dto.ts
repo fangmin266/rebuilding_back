@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsOptional,
@@ -32,6 +33,9 @@ export class CreateUserDto extends createCommon {
     each: true,
   })
   password: string;
+
+  @IsBoolean()
+  isPersonalInfo: boolean;
 }
 
 export class CreateSocialUserDto extends createCommon {

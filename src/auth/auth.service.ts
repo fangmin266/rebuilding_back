@@ -20,6 +20,7 @@ import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
 import { Source } from '@root/user/entities/source.enum';
 import { RepoName } from '@root/user/entities/error.enum';
 import { Cache } from 'cache-manager';
+import { CustomErrorResponse } from '@root/common/interceptor/custom-error-response';
 
 @Injectable()
 export class AuthService {
@@ -53,6 +54,7 @@ export class AuthService {
   }
 
   public async getAuthenticatedUser(email: string, plainTextPassword: string) {
+    console.log(email, 'email');
     try {
       const user = await this.userService.getByEmail(email);
       await this.verifyPassword(plainTextPassword, user.password);
@@ -129,18 +131,7 @@ export class AuthService {
   }
 
   public async sendRandomNumberwithEmail(email: string) {
-    const ifhascache = await this.cacheManager.get('randomcache_email');
-    if (ifhascache) {
-      return this.sendEmailRandomCode(ifhascache);
-    } else {
-      const findUser = await this.userService.getByEmail(email);
-      if (!findUser) {
-        this.cacheManager.set('randomcache_email', email);
-        return await this.sendEmailRandomCode(email);
-      } else {
-        throw new HttpException(`already in use email`, HttpStatus.CONFLICT);
-      }
-    }
+    return await this.sendEmailRandomCode(email);
   }
 
   public async decodedConfirmationToken(token: string) {
