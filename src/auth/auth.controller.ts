@@ -339,7 +339,6 @@ export class AuthController {
     const RandomNum = await this.authService.sendRandomNumberwithEmail(email);
     await this.cacheManager.del('randomnum');
     await this.cacheManager.set('randomnum', RandomNum);
-    // return { random: RandomNum };
   }
 
   @Get('randomnum/incache')

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   CACHE_MANAGER,
   HttpException,
   HttpStatus,
@@ -18,6 +19,8 @@ import { Cron } from '@nestjs/schedule';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { RepoName } from './entities/error.enum';
 import { Cache } from 'cache-manager';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 
 export const repo = RepoName.USER;
 @Injectable()
@@ -26,6 +29,8 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
@@ -161,6 +166,24 @@ export class UserService {
     });
   }
 
+  async decodedResetPassToken(token: string, password: string) {
+    try {
+      const payload = await this.jwtService.verify(token, {
+        secret: this.configService.get('JWT_VERIFICATION_TOKEN_SECRET'),
+      });
+      const user = await this.getByEmail(payload.email);
+      console.log(payload.email, password);
+      const hashPass = await bcrypt.hash(password, 10); //변경되는 password값도 hash처리
+      user.password = hashPass;
+      await this.userRepository.save(user);
+    } catch (error) {
+      if (error?.name === 'TokenExpiredError') {
+        throw new BadRequestException('token expired error');
+      } else {
+        throw new BadRequestException('bad confirmation token');
+      }
+    }
+  }
   // @Cron('10 * * * * *') //10초마다 로그 =>구독,결제 시 사용많이함 (정기결제같은거 **)
   // handleCron() {
   //   this.logger.debug('cron logger');

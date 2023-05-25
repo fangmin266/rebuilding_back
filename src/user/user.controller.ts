@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Inject,
   Param,
+  Post,
   Query,
   UseGuards,
   UseInterceptors,
@@ -21,12 +22,18 @@ import { TransformInterceptor } from '@root/common/interceptor/transform.interce
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { RepoName } from './entities/error.enum';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 export const repo = RepoName.USER;
 @ApiTags(repo)
 @Controller(repo)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Get('all')
   @UseGuards(RoleGuard(Role.USER)) //test용으로 잠시 user로,,
@@ -79,5 +86,19 @@ export class UserController {
     } else {
       throw new HttpException(`no ${repo} id`, HttpStatus.NOT_FOUND);
     }
+  }
+
+  @Post('reset/password')
+  @ApiResponse({ status: 200, description: `reset password` })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  @ApiOperation({
+    summary: `reset password`,
+    description: `reset password`,
+  })
+  async resetPassword(
+    @Body('token') token: string,
+    @Body('password') password: string,
+  ) {
+    await this.userService.decodedResetPassToken(token, password);
   }
 }
