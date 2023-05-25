@@ -17,7 +17,6 @@ export class LibraryController {
 
   @Get()
   @UseGuards(RoleGuard(Role.USER))
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'success get all library' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({ summary: 'get library all', description: 'get library all' })
@@ -27,7 +26,6 @@ export class LibraryController {
 
   @Post()
   @UseGuards(RoleGuard(Role.USER))
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'success post library' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({ summary: 'post library', description: 'post library' })

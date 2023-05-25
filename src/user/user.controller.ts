@@ -30,7 +30,6 @@ export class UserController {
 
   @Get('all')
   @UseGuards(RoleGuard(Role.USER)) //test용으로 잠시 user로,,
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: `get all ${repo}s success` })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({
@@ -43,7 +42,6 @@ export class UserController {
 
   @Get(':id')
   @UseGuards(RoleGuard(Role.USER))
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: `success get ${repo} id` })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({ summary: `${repo} id get`, description: `${repo} id get` })
@@ -57,7 +55,6 @@ export class UserController {
 
   @Get('edit/:id')
   @UseGuards(RoleGuard(Role.USER))
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: `success edit ${repo} id` })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({ summary: `${repo} id edit`, description: `${repo} id edit` })
@@ -70,7 +67,6 @@ export class UserController {
 
   @Get('delete/:id')
   @UseGuards(RoleGuard(Role.USER))
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: `success delete ${repo} id` })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({

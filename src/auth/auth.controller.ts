@@ -62,7 +62,6 @@ export class AuthController {
   ) {}
 
   @Post('signup')
-  @UseInterceptors(TransformInterceptor)
   @ApiCreatedResponse({
     description: 'the record has been seccuess',
     type: User,
@@ -86,7 +85,6 @@ export class AuthController {
 
   @Post('login')
   @Header('Access-Control-Expose-Headers', 'Set-Cookie')
-  @UseInterceptors(TransformInterceptor)
   @UseGuards(LocalAuthGuard)
   @UseGuards(ThrottlerGuard)
   @ApiResponse({ status: 200, description: 'login success' })
@@ -103,7 +101,7 @@ export class AuthController {
       await this.authService.generateRefreshToken(user.id);
     await this.userService.setCurrnetsRefreshToken(refreshToken, user.id);
     const cookies = [
-      `accessToken=${accessTokenCookie}; Path=/; HttpOnly`,
+      `Authorization=${accessTokenCookie}; Path=/; HttpOnly`,
       `refreshToken=${refreshTokenCookie}; Path=/; HttpOnly`,
     ];
     request.res.setHeader('Set-Cookie', cookies);
@@ -124,7 +122,6 @@ export class AuthController {
 
   @Get('profile')
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'profile get success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({
@@ -137,7 +134,6 @@ export class AuthController {
   }
 
   @Post('email/confirm')
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'confirmation email' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({
@@ -166,7 +162,6 @@ export class AuthController {
   }
 
   @Post('sms/verify')
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'sms verification send success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({
@@ -178,7 +173,6 @@ export class AuthController {
   }
 
   @Post('sms/check')
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'sms verification confirm success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({
@@ -191,7 +185,6 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(GoogleOathGuard)
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'google login success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({
@@ -204,7 +197,6 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(GoogleOathGuard)
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'google login callback success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({
@@ -230,7 +222,6 @@ export class AuthController {
 
   @Get('facebook')
   @UseGuards(FacebookGuard)
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'facebook login success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   loginWithFacebook() {
@@ -239,7 +230,6 @@ export class AuthController {
 
   @Get('facebook/callback')
   @UseGuards(FacebookGuard)
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'facebook login callback success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   async facebookCallback(@Req() req) {
@@ -260,7 +250,6 @@ export class AuthController {
 
   @Get('naver')
   @UseGuards(NaverGuard)
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'naver login success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   loginWithNaver() {
@@ -269,7 +258,6 @@ export class AuthController {
 
   @Get('naver/callback')
   @UseGuards(NaverGuard)
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'naver login callback success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   async naverCallback(@Req() req) {
@@ -292,7 +280,6 @@ export class AuthController {
 
   @Get('kakao')
   @UseGuards(KakaoGuard)
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'kakao login success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   loginWithKakao() {
@@ -301,7 +288,6 @@ export class AuthController {
 
   @Get('kakao/callback')
   @UseGuards(KakaoGuard)
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'kakao login callback success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   async kakaoCallback(@Req() req) {
@@ -321,7 +307,6 @@ export class AuthController {
   }
 
   @Post('password/sendtokentoemail')
-  @UseInterceptors(TransformInterceptor)
   @ApiOperation({
     summary: 'password findby email',
     description: 'email 로 token 발행',
@@ -335,7 +320,6 @@ export class AuthController {
   }
 
   @Post('findemail')
-  @UseInterceptors(TransformInterceptor)
   @ApiCreatedResponse({ description: '결과' })
   @ApiResponse({ status: 201, description: ' 이메일 찾기' })
   @ApiOperation({ summary: ' 이메일 찾기', description: ' 이메일 찾기' })
@@ -345,7 +329,6 @@ export class AuthController {
   }
 
   @Post('sendemail')
-  @UseInterceptors(TransformInterceptor)
   @ApiCreatedResponse({ description: '결과' })
   @ApiResponse({ status: 201, description: ' 이메일 랜덤넘버 전송 성공' })
   @ApiOperation({
@@ -354,11 +337,24 @@ export class AuthController {
   })
   async sendRandomLink(@Body('email') email: string) {
     const RandomNum = await this.authService.sendRandomNumberwithEmail(email);
-    return { random: RandomNum };
+    await this.cacheManager.del('randomnum');
+    await this.cacheManager.set('randomnum', RandomNum);
+    // return { random: RandomNum };
+  }
+
+  @Get('randomnum/incache')
+  @ApiCreatedResponse({ description: '결과' })
+  @ApiResponse({ status: 201, description: '랜덤넘버 가져오기' })
+  @ApiOperation({
+    summary: '랜덤넘버 가져오기',
+    description: '랜덤넘버 가져오기',
+  })
+  async getRandomNumInCache() {
+    const getRandomNumberinCache = await this.cacheManager.get('randomnum');
+    return getRandomNumberinCache;
   }
 
   @Post('link/passwordreset')
-  @UseInterceptors(TransformInterceptor)
   @ApiCreatedResponse({ description: '결과' })
   @ApiResponse({ status: 201, description: 'password reset link success' })
   @ApiOperation({
@@ -370,7 +366,6 @@ export class AuthController {
   }
 
   @Put('password/changebyemail')
-  @UseInterceptors(TransformInterceptor)
   @ApiOperation({
     summary: '발행된 토큰 + 변경비밀번호',
     description: 'password changeby email',

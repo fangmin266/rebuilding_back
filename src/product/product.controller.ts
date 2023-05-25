@@ -28,7 +28,6 @@ export class ProductController {
 
   @Post()
   @UseGuards(RoleGuard(Role.USER))
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: ` success create ${repo}` })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({ summary: `${repo} 생성`, description: `${repo} 생성` })
@@ -38,7 +37,6 @@ export class ProductController {
 
   @Get('all')
   // @UseGuards(RoleGuard(Role.USER))
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: `get ${repo} all` })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({ summary: `${repo} all get`, description: `${repo} all get` })
@@ -48,7 +46,6 @@ export class ProductController {
 
   @Get(':id')
   @UseGuards(RoleGuard(Role.USER))
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: `success get ${repo} id` })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({ summary: `${repo} id get`, description: `${repo} id get` })
@@ -62,7 +59,6 @@ export class ProductController {
 
   @Get('edit/:id')
   @UseGuards(RoleGuard(Role.USER))
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: `success edit ${repo} id` })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({ summary: 'product id edit', description: `${repo} id edit` })
@@ -75,7 +71,6 @@ export class ProductController {
 
   @Get('delete/:id')
   @UseGuards(RoleGuard(Role.USER))
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: `success delete ${repo} id` })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({

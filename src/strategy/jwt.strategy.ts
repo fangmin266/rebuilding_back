@@ -12,8 +12,17 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly userService: UserService,
     private readonly configService: ConfigService,
   ) {
+    // super({
+    //   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    //   secretOrKey: configService.get('JWT_SECRET'),
+    // });
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request: Request) => {
+          return request?.cookies['Authorization'];
+        },
+        ExtractJwt.fromAuthHeaderAsBearerToken,
+      ]),
       secretOrKey: configService.get('JWT_SECRET'),
     });
     // super({

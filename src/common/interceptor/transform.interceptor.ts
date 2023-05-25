@@ -26,14 +26,5 @@ export class TransformInterceptor<T>
     next: CallHandler<T>,
   ): Observable<Response<T>> {
     return next.handle().pipe(map((data) => Object.assign({}, Info, { data })));
-    // return next.handle().pipe(
-    //   map((data) => {
-    //     if (Info.statusCode === 400) {
-    //       // 원하는 상태 코드로 수정하세요
-    //       return Object.assign({}, Info, { data, statusCode: 400 });
-    //     }
-    //     return Object.assign({}, Info, { data });
-    //   }),
-    // );
   }
 }

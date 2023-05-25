@@ -17,7 +17,6 @@ export class CommentController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'success edit product id' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({ summary: 'product comment', description: 'product comment' })

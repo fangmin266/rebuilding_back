@@ -24,7 +24,6 @@ export class ProfileController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(TransformInterceptor)
   @ApiResponse({ status: 200, description: 'profile success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   async createProfile(
