@@ -9,11 +9,11 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.use(cookieParser());
   app.enableCors({});
   const config = new BaseAPIDocument().initializeOptions();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  app.use(cookieParser());
 
   app.useGlobalFilters(new HttpExceptionFilter()); //모든 에러는 형식
   app.useGlobalInterceptors(new TransformInterceptor()); //interceptor 전역화

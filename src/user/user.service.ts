@@ -127,12 +127,9 @@ export class UserService {
   }
 
   async markEmailAsConfirmed(email: string) {
-    return this.userRepository.update(
-      { email },
-      {
-        isEmailConfirmed: true,
-      },
-    );
+    return this.userRepository.update(email, {
+      isEmailConfirmed: true,
+    });
   }
 
   async changePassword(email: string, password: string) {
@@ -172,11 +169,18 @@ export class UserService {
         secret: this.configService.get('JWT_VERIFICATION_TOKEN_SECRET'),
       });
       const user = await this.getByEmail(payload.email);
-      console.log(payload.email, password);
+      console.log(payload.email, password, '>?');
       const hashPass = await bcrypt.hash(password, 10); //변경되는 password값도 hash처리
       user.password = hashPass;
+      console.log(hashPass, 'hashPass');
       await this.userRepository.save(user);
+      // await this.userRepository.update(payload.email, {
+      //   password: hashPass,
+      // });
+      const comp = await bcrypt.compare(password, hashPass);
+      console.log(comp, 'compare');
     } catch (error) {
+      console.log(error);
       if (error?.name === 'TokenExpiredError') {
         throw new BadRequestException('token expired error');
       } else {

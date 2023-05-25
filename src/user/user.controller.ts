@@ -100,5 +100,6 @@ export class UserController {
     @Body('password') password: string,
   ) {
     await this.userService.decodedResetPassToken(token, password);
+    console.log(token, password, '여기찍혀야돼;;');
   }
 }

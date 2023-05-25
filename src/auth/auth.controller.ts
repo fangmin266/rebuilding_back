@@ -94,18 +94,26 @@ export class AuthController {
     description: '로그인',
   })
   async login(@Req() request: RequestWithUserInterface) {
-    const user = request.user;
-    await this.cacheManager.set(user.id, user);
-    const accessTokenCookie = await this.authService.generateJWT(user.id);
-    const { cookie: refreshTokenCookie, token: refreshToken } =
-      await this.authService.generateRefreshToken(user.id);
-    await this.userService.setCurrnetsRefreshToken(refreshToken, user.id);
-    const cookies = [
-      `Authorization=${accessTokenCookie}; Path=/; HttpOnly`,
-      `refreshToken=${refreshTokenCookie}; Path=/; HttpOnly`,
-    ];
-    request.res.setHeader('Set-Cookie', cookies);
-    return user;
+    try {
+      const user = request.user;
+      await this.cacheManager.set(user.id, user);
+      const accessTokenCookie = await this.authService.generateJWT(user.id);
+      const { cookie: refreshTokenCookie, token: refreshToken } =
+        await this.authService.generateRefreshToken(user.id);
+      await this.userService.setCurrnetsRefreshToken(refreshToken, user.id);
+      const cookies = [
+        `Authentication=${accessTokenCookie}; Path=/; HttpOnly`,
+        `refreshToken=${refreshTokenCookie}; Path=/; HttpOnly`,
+        // `Authentication=${accessTokenCookie}; Path=/; `,
+        // `refreshToken=${refreshTokenCookie}; Path=/; `,
+      ];
+      request.res.setHeader('Set-Cookie', cookies);
+      // response.setHeader('Set-Cookie', cookies);
+      // response.send(user);
+      return user;
+    } catch (error) {
+      console.log(error, 'error');
+    }
   }
 
   @Post('logout')
@@ -337,19 +345,25 @@ export class AuthController {
   })
   async sendRandomLink(@Body('email') email: string) {
     const RandomNum = await this.authService.sendRandomNumberwithEmail(email);
-    await this.cacheManager.del('randomnum');
-    await this.cacheManager.set('randomnum', RandomNum);
+    await this.cacheManager.del(email);
+    await this.cacheManager.set(email, RandomNum);
   }
 
-  @Get('randomnum/incache')
+  @Post('randomnum/incache')
   @ApiCreatedResponse({ description: '결과' })
   @ApiResponse({ status: 201, description: '랜덤넘버 가져오기' })
   @ApiOperation({
     summary: '랜덤넘버 가져오기',
     description: '랜덤넘버 가져오기',
   })
-  async getRandomNumInCache() {
-    const getRandomNumberinCache = await this.cacheManager.get('randomnum');
+  async getRandomNumInCache(
+    @Body('email') email: string,
+    @Body('random') random: string,
+  ) {
+    console.log(email, random, '??');
+    // console.log(email + random, 'key');
+    const getRandomNumberinCache = await this.cacheManager.get(email);
+    console.log(getRandomNumberinCache);
     return getRandomNumberinCache;
   }
 
