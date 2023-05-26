@@ -19,7 +19,7 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from '@user/dto/create-user.dto';
 import { LocalAuthGuard } from '@root/guard/localAuth.gaurd';
 import { RequestWithUserInterface } from './interface/requestWithUser.interface';
-import { Response } from 'express';
+import { CookieOptions, Response } from 'express';
 import { JwtAuthGuard } from '@root/guard/jwtAuth.guard';
 import { ConfirmEmailDto } from '@root/user/dto/confirm-email.dto';
 import { ConfirmAuthenticate } from '@root/user/dto/confirm-authenticate.dto';
@@ -61,6 +61,35 @@ export class AuthController {
     private cacheManager: Cache,
   ) {}
 
+  @Post()
+  getHello(@Req() req: Request, @Res() res: Response) {
+    // req.res.setHeader('Set-Cookie', 'something');
+
+    const options: CookieOptions = {
+      path: '/',
+      domain: 'localhost',
+      secure: false,
+      httpOnly: true,
+      expires: new Date(Date.now() + 86400000),
+      sameSite: 'none', // SameSite 설정을 None으로 변경
+    };
+    res.cookie('Set-Cookie', 'something', options);
+
+    // const cookieValue = 'something';
+
+    // const options: Array<string> = [
+    //   `Set-Cookie: cookieName=${cookieValue}`,
+    //   'Path=/',
+    //   'Domain=localhost',
+    //   'Secure',
+    //   'HttpOnly',
+    // ];
+
+    // res.setHeader('Set-Cookie', options);
+    console.log(res.getHeader('Set-Cookie'));
+    res.send();
+  }
+
   @Post('signup')
   @ApiCreatedResponse({
     description: 'the record has been seccuess',
@@ -93,24 +122,35 @@ export class AuthController {
     summary: '로그인',
     description: '로그인',
   })
-  async login(@Req() request: RequestWithUserInterface) {
+  async login(@Req() request: RequestWithUserInterface, response: Response) {
     try {
       const user = request.user;
-      await this.cacheManager.set(user.id, user);
-      const accessTokenCookie = await this.authService.generateJWT(user.id);
-      const { cookie: refreshTokenCookie, token: refreshToken } =
-        await this.authService.generateRefreshToken(user.id);
-      await this.userService.setCurrnetsRefreshToken(refreshToken, user.id);
-      const cookies = [
-        `Authentication=${accessTokenCookie}; Path=/; HttpOnly`,
-        `refreshToken=${refreshTokenCookie}; Path=/; HttpOnly`,
-        // `Authentication=${accessTokenCookie}; Path=/; `,
-        // `refreshToken=${refreshTokenCookie}; Path=/; `,
-      ];
-      request.res.setHeader('Set-Cookie', cookies);
-      // response.setHeader('Set-Cookie', cookies);
-      // response.send(user);
-      return user;
+      // await this.cacheManager.set(user.id, user);
+      // const accessTokenCookie = await this.authService.generateJWT(user.id);
+      // const { cookie: refreshTokenCookie, token: refreshToken } =
+      //   await this.authService.generateRefreshToken(user.id);
+      // await this.userService.setCurrnetsRefreshToken(refreshToken, user.id);
+      // const cookies = [
+      //   `Authentication=${accessTokenCookie}; Path=/; HttpOnly`,
+      //   `refreshToken=${refreshTokenCookie}; Path=/; HttpOnly`,
+      //   // `Authentication=${accessTokenCookie}; Path=/; `,
+      //   // `refreshToken=${refreshTokenCookie}; Path=/; `,
+      // ];
+      // request.res.setHeader('Set-Cookie', cookies);
+      // // response.setHeader('Set-Cookie', cookies);
+      // // response.send(user);
+      // console.log(request.header);
+      const options: CookieOptions = {
+        path: '/',
+        domain: 'localhost',
+        secure: false,
+        httpOnly: true,
+        expires: new Date(Date.now() + 86400000),
+      };
+
+      response.cookie('Set-Cookie', 'something', options);
+      console.log(response.cookie);
+      // return user;
     } catch (error) {
       console.log(error, 'error');
     }

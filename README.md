@@ -169,3 +169,20 @@ https://docs.nestjs.com/security/rate-limiting
 - 시퀀스다이어그램
 - s3 이미지처리
 - jwtFromRequest부분 찾아보기
+- cors 에러 해결
+
+```
+-로컬에서 진행시
+1.도메인이 동일한지 확인(ex: http://localhost)
+2.enableCors 확인 (로컬에서 진행시 지정된 url 필요)
+  app.enableCors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+    allowedHeaders: 'Content-Type, Authorization',
+  });
+3. 프론트와 백엔드 모두 withCredentionals 설정
+    const res = await axios.get("http://localhost:3600/" + "auth", {
+      baseURL: "http://localhost:3600/",
+      withCredentials: true, // 쿠키 받아오기 위한 옵션
+    });
+```

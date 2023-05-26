@@ -10,7 +10,12 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
-  app.enableCors({});
+  // app.enableCors({});
+  app.enableCors({
+    origin: 'https://localhost:8443',
+    credentials: true,
+    allowedHeaders: 'Content-Type, Authorization',
+  });
   const config = new BaseAPIDocument().initializeOptions();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
