@@ -12,9 +12,9 @@ async function bootstrap() {
   app.use(cookieParser());
   // app.enableCors({});
   app.enableCors({
-    origin: 'https://localhost:8443',
+    origin: 'http://localhost:3000',
     credentials: true,
-    allowedHeaders: 'Content-Type, Authorization',
+    // allowedHeaders: 'Content-Type, Authorization',
   });
   const config = new BaseAPIDocument().initializeOptions();
   const document = SwaggerModule.createDocument(app, config);

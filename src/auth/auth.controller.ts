@@ -113,7 +113,6 @@ export class AuthController {
   }
 
   @Post('login')
-  @Header('Access-Control-Expose-Headers', 'Set-Cookie')
   @UseGuards(LocalAuthGuard)
   @UseGuards(ThrottlerGuard)
   @ApiResponse({ status: 200, description: 'login success' })
@@ -125,32 +124,24 @@ export class AuthController {
   async login(@Req() request: RequestWithUserInterface, response: Response) {
     try {
       const user = request.user;
-      // await this.cacheManager.set(user.id, user);
-      // const accessTokenCookie = await this.authService.generateJWT(user.id);
-      // const { cookie: refreshTokenCookie, token: refreshToken } =
-      //   await this.authService.generateRefreshToken(user.id);
-      // await this.userService.setCurrnetsRefreshToken(refreshToken, user.id);
-      // const cookies = [
-      //   `Authentication=${accessTokenCookie}; Path=/; HttpOnly`,
-      //   `refreshToken=${refreshTokenCookie}; Path=/; HttpOnly`,
-      //   // `Authentication=${accessTokenCookie}; Path=/; `,
-      //   // `refreshToken=${refreshTokenCookie}; Path=/; `,
-      // ];
-      // request.res.setHeader('Set-Cookie', cookies);
-      // // response.setHeader('Set-Cookie', cookies);
-      // // response.send(user);
-      // console.log(request.header);
-      const options: CookieOptions = {
-        path: '/',
-        domain: 'localhost',
-        secure: false,
-        httpOnly: true,
-        expires: new Date(Date.now() + 86400000),
-      };
 
-      response.cookie('Set-Cookie', 'something', options);
+      // await this.cacheManager.set(user.id, user);
+      const accessTokenCookie = await this.authService.generateJWT(user.id);
+      const { cookie: refreshTokenCookie, token: refreshToken } =
+        await this.authService.generateRefreshToken(user.id);
+      await this.userService.setCurrnetsRefreshToken(refreshToken, user.id);
+      const cookies = [
+        `Authentication=${accessTokenCookie}; Path=/; HttpOnly`,
+        `refreshToken=${refreshTokenCookie}; Path=/; HttpOnly`,
+        // `Authentication=${accessTokenCookie}; Path=/; `,
+        // `refreshToken=${refreshTokenCookie}; Path=/; `,
+      ];
+
+      response.setHeader('Set-Cookie', cookies);
+
       console.log(response.cookie);
-      // return user;
+      response.send({ message: 'success' });
+      return user;
     } catch (error) {
       console.log(error, 'error');
     }
@@ -251,7 +242,7 @@ export class AuthController {
     summary: 'google login callback',
     description: 'google login callback',
   })
-  async googleCallback(@Req() req) {
+  async googleCallback(@Req() req, @Res() res) {
     const user = req.user;
     const email = user.email;
     const username = user.displayName;
@@ -265,7 +256,8 @@ export class AuthController {
       photo,
       Source.GOOGLE,
     );
-    return loginRes;
+    const mainPageUrl = 'http://localhost:3000';
+    res.redirect(mainPageUrl);
   }
 
   @Get('facebook')
@@ -280,7 +272,7 @@ export class AuthController {
   @UseGuards(FacebookGuard)
   @ApiResponse({ status: 200, description: 'facebook login callback success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
-  async facebookCallback(@Req() req) {
+  async facebookCallback(@Req() req, @Res() res) {
     const user = req.user;
     const email = user._json.email;
     const username = user.name.familyName + user.name.givenName;
@@ -293,7 +285,8 @@ export class AuthController {
       photo,
       Source.FACEBOOK,
     );
-    return loginRes;
+    const mainPageUrl = 'http://localhost:3000';
+    res.redirect(mainPageUrl);
   }
 
   @Get('naver')
@@ -308,7 +301,7 @@ export class AuthController {
   @UseGuards(NaverGuard)
   @ApiResponse({ status: 200, description: 'naver login callback success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
-  async naverCallback(@Req() req) {
+  async naverCallback(@Req() req, @Res() res) {
     const user = req.user;
     const userj = user._json;
     const email = userj.email ? userj.email : null;
@@ -322,8 +315,8 @@ export class AuthController {
       photo,
       Source.NAVER,
     );
-
-    return loginRes;
+    const mainPageUrl = 'http://localhost:3000';
+    res.redirect(mainPageUrl);
   }
 
   @Get('kakao')
@@ -338,7 +331,7 @@ export class AuthController {
   @UseGuards(KakaoGuard)
   @ApiResponse({ status: 200, description: 'kakao login callback success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
-  async kakaoCallback(@Req() req) {
+  async kakaoCallback(@Req() req, @Res() res) {
     const user = JSON.parse(req.user._raw);
     const email = user.kakao_account.email;
     const username = user.properties.nickName;
@@ -351,7 +344,8 @@ export class AuthController {
       photo,
       Source.KAKAO,
     );
-    return loginRes;
+    const mainPageUrl = 'http://localhost:3000';
+    res.redirect(mainPageUrl);
   }
 
   @Post('password/sendtokentoemail')
