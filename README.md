@@ -172,7 +172,7 @@ https://docs.nestjs.com/security/rate-limiting
 - cors 에러 해결
 
 ```
--로컬에서 진행시
+//로컬에서 진행시
 1.도메인이 동일한지 확인(ex: http://localhost)
 2.enableCors 확인 (로컬에서 진행시 지정된 url 필요)
   app.enableCors({
@@ -186,3 +186,6 @@ https://docs.nestjs.com/security/rate-limiting
       withCredentials: true, // 쿠키 받아오기 위한 옵션
     });
 ```
+
+- entity 이슈 : 간혹 dist 환경의 entity 가 경로가 잘못되어있다는 에러 발생
+  => 해결: tsconfig.paths에 설정해놓은 절대경로가 자동완성시 인식이 잘못되어 발생 , 발생시 체크해볼것ㄴ

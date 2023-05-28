@@ -116,21 +116,13 @@ export class AuthController {
       const accessTokenCookie = await this.authService.generateJWT(user.id);
       const { cookie: refreshTokenCookie, token: refreshToken } =
         await this.authService.generateRefreshToken(user.id);
-      await this.userService.setCurrnetsRefreshToken(refreshToken, user.id);
+      //await this.userService.setCurrnetsRefreshToken(refreshToken, user.id);
       const cookies = [
-        `Authentication=${accessTokenCookie}; Path=/; HttpOnly`,
-        `refreshToken=${refreshTokenCookie}; Path=/; HttpOnly`,
+        `Authentication=${accessTokenCookie}; Path=/; `,
+        refreshTokenCookie,
       ];
-
-      // response.setHeader('Set-Cookie', cookies);
-      response.setHeader(
-        'Set-Cookie',
-        // 'key=[Authentication=123refreshToken=456]; Path=/; HttpOnly',
-        cookies,
-      );
-      //response.setHeader('Set-Cookie', 'key=value; HttpOnly; Path=/;');
-
-      console.log(request.cookies);
+      response.setHeader('Set-Cookie', cookies);
+      console.log(response.getHeader('Set-Cookie'));
       response.send({});
       return user;
     } catch (error) {
@@ -148,6 +140,21 @@ export class AuthController {
     await this.cacheManager.del(request.user.id);
     await this.userService.removeRefreshToken(request.user.id);
     request.res.setHeader('Set-Cookie', this.authService.getCookiesForLogout());
+  }
+
+  @Post('autologin')
+  @UseGuards(ThrottlerGuard)
+  @ApiResponse({ status: 200, description: 'autologin success' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  @ApiOperation({
+    summary: '자동 로그인',
+    description: '자동 로그인',
+  })
+  async autoLogin(
+    @Body('authenticateToken') authenticateToken: string,
+    @Body('refreshToken') refreshToken: string,
+  ) {
+    console.log(authenticateToken, refreshToken);
   }
 
   @Get('profile')

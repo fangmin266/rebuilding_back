@@ -96,7 +96,7 @@ export class AuthService {
       secret: this.configService.get('JWT_REFRESH_SECRET'),
       expiresIn: this.configService.get('JWT_REFRESH_EXPIRATION_TIME'),
     });
-    const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+    const cookie = `Refresh=${token}; Path=/; Max-Age=${this.configService.get(
       'JWT_REFRESH_EXPIRATION_TIME',
     )}`;
     return { cookie, token };
