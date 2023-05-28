@@ -14,7 +14,7 @@ import { AbstractEntity } from './abstract.entity';
 import { Role, Source } from './source.enum';
 import * as grabatar from 'gravatar';
 import { Profile } from '@root/profile/entities/profile.entity';
-import { Product } from '@root/product/entities/product.entity';
+import { Product } from '@product/entities/product.entity';
 
 @Entity()
 export class User extends AbstractEntity {

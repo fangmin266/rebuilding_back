@@ -19,7 +19,7 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from '@user/dto/create-user.dto';
 import { LocalAuthGuard } from '@root/guard/localAuth.gaurd';
 import { RequestWithUserInterface } from './interface/requestWithUser.interface';
-import { CookieOptions, Response } from 'express';
+import { Response, Request } from 'express';
 import { JwtAuthGuard } from '@root/guard/jwtAuth.guard';
 import { ConfirmEmailDto } from '@root/user/dto/confirm-email.dto';
 import { ConfirmAuthenticate } from '@root/user/dto/confirm-authenticate.dto';
@@ -61,35 +61,6 @@ export class AuthController {
     private cacheManager: Cache,
   ) {}
 
-  @Post()
-  getHello(@Req() req: Request, @Res() res: Response) {
-    // req.res.setHeader('Set-Cookie', 'something');
-
-    const options: CookieOptions = {
-      path: '/',
-      domain: 'localhost',
-      secure: false,
-      httpOnly: true,
-      expires: new Date(Date.now() + 86400000),
-      sameSite: 'none', // SameSite 설정을 None으로 변경
-    };
-    res.cookie('Set-Cookie', 'something', options);
-
-    // const cookieValue = 'something';
-
-    // const options: Array<string> = [
-    //   `Set-Cookie: cookieName=${cookieValue}`,
-    //   'Path=/',
-    //   'Domain=localhost',
-    //   'Secure',
-    //   'HttpOnly',
-    // ];
-
-    // res.setHeader('Set-Cookie', options);
-    console.log(res.getHeader('Set-Cookie'));
-    res.send();
-  }
-
   @Post('signup')
   @ApiCreatedResponse({
     description: 'the record has been seccuess',
@@ -112,6 +83,19 @@ export class AuthController {
     }
   }
 
+  @Post('sample')
+  getHello(@Req() req: Request, @Res() res: Response) {
+    // req.res.setHeader('Set-Cookie', 'something');
+    res.setHeader('Set-Cookie', 'key=value; HttpOnly; Path=/;');
+
+    // res.setHeader(
+    //   'Set-Cookie',
+    //   'key=[Authentication=123refreshToken=456]; Path=/; Secure',
+    // );
+    console.log(res.getHeader('Set-Cookie'), 'res');
+    res.send({});
+  }
+
   @Post('login')
   @UseGuards(LocalAuthGuard)
   @UseGuards(ThrottlerGuard)
@@ -121,7 +105,10 @@ export class AuthController {
     summary: '로그인',
     description: '로그인',
   })
-  async login(@Req() request: RequestWithUserInterface, response: Response) {
+  async login(
+    @Req() request: RequestWithUserInterface,
+    @Res() response: Response,
+  ) {
     try {
       const user = request.user;
 
@@ -133,14 +120,18 @@ export class AuthController {
       const cookies = [
         `Authentication=${accessTokenCookie}; Path=/; HttpOnly`,
         `refreshToken=${refreshTokenCookie}; Path=/; HttpOnly`,
-        // `Authentication=${accessTokenCookie}; Path=/; `,
-        // `refreshToken=${refreshTokenCookie}; Path=/; `,
       ];
 
-      response.setHeader('Set-Cookie', cookies);
+      // response.setHeader('Set-Cookie', cookies);
+      response.setHeader(
+        'Set-Cookie',
+        // 'key=[Authentication=123refreshToken=456]; Path=/; HttpOnly',
+        cookies,
+      );
+      //response.setHeader('Set-Cookie', 'key=value; HttpOnly; Path=/;');
 
-      console.log(response.cookie);
-      response.send({ message: 'success' });
+      console.log(request.cookies);
+      response.send({});
       return user;
     } catch (error) {
       console.log(error, 'error');
