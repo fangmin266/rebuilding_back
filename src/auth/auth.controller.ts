@@ -14,12 +14,13 @@ import {
   CACHE_MANAGER,
   HttpCode,
   Header,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '@user/dto/create-user.dto';
 import { LocalAuthGuard } from '@root/guard/localAuth.gaurd';
 import { RequestWithUserInterface } from './interface/requestWithUser.interface';
-import { Response, Request } from 'express';
+import { Response, Request, response } from 'express';
 import { JwtAuthGuard } from '@root/guard/jwtAuth.guard';
 import { ConfirmEmailDto } from '@root/user/dto/confirm-email.dto';
 import { ConfirmAuthenticate } from '@root/user/dto/confirm-authenticate.dto';
@@ -49,6 +50,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { Source } from '@root/user/entities/source.enum';
 import { EmailVerifiateDto } from '@root/email/dto/email-verificate.dto';
 import { EmailAuthDto } from '@root/email/dto/email-auth.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -57,6 +59,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly userService: UserService,
     private readonly smsService: SmsService,
+
     @Inject(CACHE_MANAGER)
     private cacheManager: Cache,
   ) {}
@@ -83,19 +86,6 @@ export class AuthController {
     }
   }
 
-  @Post('sample')
-  getHello(@Req() req: Request, @Res() res: Response) {
-    // req.res.setHeader('Set-Cookie', 'something');
-    res.setHeader('Set-Cookie', 'key=value; HttpOnly; Path=/;');
-
-    // res.setHeader(
-    //   'Set-Cookie',
-    //   'key=[Authentication=123refreshToken=456]; Path=/; Secure',
-    // );
-    console.log(res.getHeader('Set-Cookie'), 'res');
-    res.send({});
-  }
-
   @Post('login')
   @UseGuards(LocalAuthGuard)
   @UseGuards(ThrottlerGuard)
@@ -111,12 +101,13 @@ export class AuthController {
   ) {
     try {
       const user = request.user;
-
-      // await this.cacheManager.set(user.id, user);
+      await this.cacheManager.del(user.id);
+      await this.cacheManager.set(user.id, user);
       const accessTokenCookie = await this.authService.generateJWT(user.id);
       const { cookie: refreshTokenCookie, token: refreshToken } =
         await this.authService.generateRefreshToken(user.id);
-      //await this.userService.setCurrnetsRefreshToken(refreshToken, user.id);
+      await this.userService.setCurrnetsRefreshToken(refreshToken, user.id);
+
       const cookies = [
         `Authentication=${accessTokenCookie}; Path=/; `,
         refreshTokenCookie,
@@ -150,11 +141,42 @@ export class AuthController {
     summary: '자동 로그인',
     description: '자동 로그인',
   })
-  async autoLogin(
-    @Body('authenticateToken') authenticateToken: string,
+  async autoLogin(@Body('accessToken') accessToken: string) {
+    try {
+      const userId = await this.authService.decodedAccessToken(accessToken);
+      const user = await this.cacheManager.get(userId);
+      return user;
+    } catch (error) {
+      //accessToken 만료시
+      console.log(error);
+      throw new HttpException(`no token`, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Post('autologin/newAccessToken')
+  @UseGuards(ThrottlerGuard)
+  @ApiResponse({ status: 200, description: 'newAccessToken success' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  @ApiOperation({
+    summary: '자동 로그인-새 accessToken 발급',
+    description: '자동 로그인-새 accessToken 발급',
+  })
+  async setNewAccessToken(
     @Body('refreshToken') refreshToken: string,
+
+    @Res() response: Response,
   ) {
-    console.log(authenticateToken, refreshToken);
+    const newAccessToken = await this.authService.changeAccessToken(
+      refreshToken,
+    );
+    const cookies = [
+      `Authentication=${newAccessToken}; Path=/; `,
+      `Refresh=${refreshToken}; Path=/; `,
+    ];
+
+    response.setHeader('Set-Cookie', cookies);
+    console.log(response.getHeader('Set-Cookie'));
+    response.send({});
   }
 
   @Get('profile')

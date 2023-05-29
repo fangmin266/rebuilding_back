@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -81,7 +82,7 @@ export class AuthService {
 
   public generateJWT(userId: string) {
     //userId로 jwt생성
-    console.log(userId, 'userid');
+
     const payload: TokenPayload = { userId };
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_SECRET'),
@@ -146,6 +147,33 @@ export class AuthService {
       } else {
         throw new BadRequestException('bad confirmation token');
       }
+    }
+  }
+
+  public async decodedAccessToken(accessToken: string) {
+    const userRefresh = await this.jwtService.verify(accessToken, {
+      secret: this.configService.get('JWT_SECRET'),
+    });
+    return userRefresh.userId;
+  }
+
+  async changeAccessToken(refreshToken: string) {
+    try {
+      console.log(refreshToken, 'refresh');
+      // refreshToken의 유효성을 검증
+      const isValid = await this.userService.getByCurrentRefreshToken(
+        refreshToken,
+      );
+      if (isValid.expirationTime > new Date()) {
+        const newAccessToken = await this.generateJWT(isValid.payload.userId);
+        return newAccessToken;
+      } else {
+        throw new Error('Invalid refreshToken');
+      }
+    } catch (error) {
+      console.log(refreshToken);
+
+      throw new BadRequestException('refresh token is not valid');
     }
   }
 

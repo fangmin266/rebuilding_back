@@ -156,6 +156,17 @@ export class UserService {
       currentHashedRefreshToken,
     });
   }
+  async getByCurrentRefreshToken(refreshToken: string) {
+    try {
+      const payload = await this.jwtService.verify(refreshToken, {
+        secret: this.configService.get('JWT_REFRESH_SECRET'),
+      });
+      return payload;
+    } catch (error) {
+      console.log(error);
+      throw new Error('Failed to verify RefreshToken');
+    }
+  }
 
   async removeRefreshToken(userId: string) {
     return this.userRepository.update(userId, {
