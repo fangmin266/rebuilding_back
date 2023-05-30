@@ -27,8 +27,9 @@ export class GoogleStrategy extends PassportStrategy(
     profile: any,
     done: VerifyCallback,
   ): Promise<any> {
-    // console.log(profile)
+    console.log(profile.user, '~~~~~~~~~~~~~~~~');
     // email 있으면 토큰발행, 없으면 회원가입후 로그인까지
-    return profile;
+
+    return { profile, accessToken: accessToken, refreshToken: refreshToken };
   }
 }

@@ -18,6 +18,6 @@ export class KakaoStrategy extends PassportStrategy(Strategy, Provider.KAKAO) {
     profile: any,
     done: any,
   ): Promise<any> {
-    return profile;
+    return { profile, accessToken: accessToken, refreshToken: refreshToken };
   }
 }

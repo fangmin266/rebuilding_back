@@ -24,6 +24,6 @@ export class FacebookStrategy extends PassportStrategy(
     profile: Profile,
     done: any,
   ): Promise<any> {
-    return profile;
+    return { profile, accessToken: accessToken, refreshToken: refreshToken };
   }
 }

@@ -21,6 +21,6 @@ export class NaverStrategy extends PassportStrategy(Strategy, Provider.NAVER) {
     profile: Profile,
     done: any,
   ): Promise<any> {
-    return profile;
+    return { profile, accessToken: accessToken, refreshToken: refreshToken };
   }
 }

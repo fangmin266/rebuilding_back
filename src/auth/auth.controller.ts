@@ -66,6 +66,7 @@ export class AuthController {
   async signup(@Body() createUserDto: CreateUserDto) {
     try {
       const user = await this.authService.signup(createUserDto);
+
       return user;
     } catch (error) {
       throw new HttpException(
@@ -249,7 +250,7 @@ export class AuthController {
     description: 'google login callback',
   })
   async googleCallback(@Req() req, @Res() res) {
-    const user = req.user;
+    const user = req.user.profile;
     const email = user.email;
     const username = user.displayName;
     const photo = user.picture;
@@ -261,6 +262,8 @@ export class AuthController {
       application_id,
       photo,
       Provider.GOOGLE,
+      user.accessToken,
+      user.refreshToken,
     );
     const mainPageUrl = 'http://localhost:3000';
     res.redirect(mainPageUrl);
@@ -279,7 +282,7 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'facebook login callback success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   async facebookCallback(@Req() req, @Res() res) {
-    const user = req.user;
+    const user = req.user.proflie;
     const email = user._json.email;
     const username = user.name.familyName + user.name.givenName;
     const password_before = user.id + email;
@@ -290,6 +293,8 @@ export class AuthController {
       password_before,
       photo,
       Provider.FACEBOOK,
+      user.accessToken,
+      user.refreshToken,
     );
     const mainPageUrl = 'http://localhost:3000';
     res.redirect(mainPageUrl);
@@ -309,17 +314,21 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'forbidden' })
   async naverCallback(@Req() req, @Res() res) {
     const user = req.user;
-    const userj = user._json;
+    const userj = user.profile._json;
+    console.log(user, 'user');
     const email = userj.email ? userj.email : null;
     const username = userj.nickName ? userj.nickName : null;
     const password_before = user.id + email;
     const photo = userj.profile ? userj.profile : null;
+    console.log(user, 'naver user ~~~~~~~~~~~');
     const loginRes = await this.authService.socialLogin(
       email,
       username,
       password_before,
       photo,
       Provider.NAVER,
+      user.accessToken,
+      user.refreshToken,
     );
     console.log(loginRes);
     const mainPageUrl = 'http://localhost:3000';
@@ -339,21 +348,24 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'kakao login callback success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   async kakaoCallback(@Req() req, @Res() res) {
-    const user = JSON.parse(req.user._raw);
-    const email = user.kakao_account.email;
-    const username = user.properties.nickName;
-    const application_id = user.id;
-    const photo = user.kakao_account.profile.profile_image_url;
-    const loginRes = await this.authService.socialLogin(
-      email,
-      username,
-      application_id,
-      photo,
-      Provider.KAKAO,
-    );
-    console.log(loginRes);
-    const mainPageUrl = 'http://localhost:3000';
-    res.redirect(mainPageUrl);
+    // console.log(req);
+    console.log('hrer');
+    // const user = JSON.parse(req.user._raw);
+    // const email = user.kakao_account.email;
+    // const username = user.properties.nickName;
+    // const application_id = user.id;
+    // const photo = user.kakao_account.profile.profile_image_url;
+    // console.log(user);
+    // const loginRes = await this.authService.socialLogin(
+    //   email,
+    //   username,
+    //   application_id,
+    //   photo,
+    //   Provider.KAKAO,
+    // );
+    // console.log(loginRes);
+    // const mainPageUrl = 'http://localhost:3000';
+    // res.redirect(mainPageUrl);
   }
 
   @Post('email/search')

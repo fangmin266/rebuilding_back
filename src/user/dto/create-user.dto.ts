@@ -21,6 +21,10 @@ export class createCommon {
 
   @IsString()
   profile_img: string;
+
+  @IsString()
+  @IsOptional() // 선택적으로 전달될 수 있는 소스 값
+  provider?: Provider;
 }
 
 export class CreateUserDto extends createCommon {

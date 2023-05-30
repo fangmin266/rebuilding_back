@@ -5,12 +5,10 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  Inject,
   Param,
   Post,
   Query,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RoleGuard } from '@root/guard/role.guard';
@@ -18,7 +16,6 @@ import { Role } from './entities/source.enum';
 import { PageOptionDto } from '@root/common/dto/page-option.dto';
 import { User } from './entities/user.entity';
 import { Page } from '@root/common/dto/page.dto';
-import { TransformInterceptor } from '@root/common/interceptor/transform.interceptor';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { RepoName } from './entities/error.enum';

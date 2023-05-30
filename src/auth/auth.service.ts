@@ -34,12 +34,16 @@ export class AuthService {
 
   public async signup(createUserDto: CreateUserDto) {
     await this.checkUserExists(createUserDto.email);
-    this.userService.create(createUserDto);
+    if (createUserDto.provider === Provider.LOCAL) {
+      this.userService.create(createUserDto);
+    } else {
+      throw new BadRequestException('provider is not local');
+    }
   }
 
   public async socialSignup(createSocialUserDto: CreateSocialUserDto) {
     await this.checkUserExists(createSocialUserDto.email);
-    this.userService.createSocial(createSocialUserDto);
+    if (createSocialUserDto) this.userService.createSocial(createSocialUserDto);
   }
 
   public async checkUserExists(email: string): Promise<void> {
@@ -223,9 +227,12 @@ export class AuthService {
     application_id: string,
     profile_img: string,
     provider: Provider = Provider.GOOGLE,
+    accessToken: string,
+    refreshToken: string,
   ) {
     try {
       const user = await this.userService.getByEmail(email);
+      console.log(accessToken, refreshToken);
       if (!user) {
         //없을 경우 회원가입
         await this.socialSignup({
