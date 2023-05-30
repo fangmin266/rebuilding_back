@@ -18,7 +18,7 @@ import { EmailService } from '@root/email/email.service';
 import Bootpay from '@bootpay/backend-js';
 import { ConfirmAuthenticate } from '@root/user/dto/confirm-authenticate.dto';
 import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
-import { Source } from '@root/user/entities/source.enum';
+import { Provider } from '@root/user/entities/source.enum';
 import { RepoName } from '@root/user/entities/error.enum';
 import { Cache } from 'cache-manager';
 
@@ -222,7 +222,7 @@ export class AuthService {
     username: string,
     application_id: string,
     profile_img: string,
-    source: Source = Source.GOOGLE,
+    provider: Provider = Provider.GOOGLE,
   ) {
     try {
       const user = await this.userService.getByEmail(email);
@@ -233,7 +233,7 @@ export class AuthService {
           username,
           profile_img,
           application_id,
-          source,
+          provider,
         });
         return {
           statusCode: 200,

@@ -11,7 +11,7 @@ import {
 import * as bcrypt from 'bcryptjs';
 import { Exclude } from 'class-transformer';
 import { AbstractEntity } from './abstract.entity';
-import { Role, Source } from './source.enum';
+import { Provider, Role } from './source.enum';
 import * as grabatar from 'gravatar';
 import { Profile } from '@root/profile/entities/profile.entity';
 import { Product } from '@product/entities/product.entity';
@@ -46,10 +46,10 @@ export class User extends AbstractEntity {
 
   @Column({
     type: 'enum',
-    enum: Source,
-    default: Source.LOCAL,
+    enum: Provider,
+    default: Provider.LOCAL,
   })
-  public source: Source;
+  public provider: Provider;
 
   @Column({
     type: 'enum',

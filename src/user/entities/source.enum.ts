@@ -1,4 +1,4 @@
-export enum Source {
+export enum Provider {
   LOCAL = 'local',
   FACEBOOK = 'facebook',
   GOOGLE = 'google',

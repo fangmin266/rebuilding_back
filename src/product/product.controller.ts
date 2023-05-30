@@ -17,7 +17,6 @@ import { UpdatedProductDto } from './dto/update-product.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RoleGuard } from '@root/guard/role.guard';
 import { Role } from '@root/user/entities/source.enum';
-import { TransformInterceptor } from '@root/common/interceptor/transform.interceptor';
 // import { 'product'Name } from '@root/user/entities/error.enum';
 
 // export const 'product' = 'product'Name.PRODUCT;

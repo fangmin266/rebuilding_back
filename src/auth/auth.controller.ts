@@ -13,8 +13,6 @@ import {
   Inject,
   CACHE_MANAGER,
   HttpCode,
-  Header,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '@user/dto/create-user.dto';
@@ -31,7 +29,6 @@ import { HttpStatusCode } from 'axios';
 import { NaverGuard } from '@root/guard/naverAuth.guard';
 import { KakaoGuard } from '@root/guard/kakaoAuth.guard';
 import {
-  ApiBody,
   ApiCreatedResponse,
   ApiOperation,
   ApiResponse,
@@ -39,18 +36,10 @@ import {
 } from '@nestjs/swagger';
 import { User } from '@root/user/entities/user.entity';
 import { UserService } from '@root/user/user.service';
-import {
-  Info,
-  TransformInterceptor,
-} from '@root/common/interceptor/transform.interceptor';
 import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
-
 import { Cache } from 'cache-manager';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { Source } from '@root/user/entities/source.enum';
-import { EmailVerifiateDto } from '@root/email/dto/email-verificate.dto';
-import { EmailAuthDto } from '@root/email/dto/email-auth.dto';
-import { JwtService } from '@nestjs/jwt';
+import { Provider } from '@root/user/entities/source.enum';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -271,7 +260,7 @@ export class AuthController {
       username,
       application_id,
       photo,
-      Source.GOOGLE,
+      Provider.GOOGLE,
     );
     const mainPageUrl = 'http://localhost:3000';
     res.redirect(mainPageUrl);
@@ -300,7 +289,7 @@ export class AuthController {
       username,
       password_before,
       photo,
-      Source.FACEBOOK,
+      Provider.FACEBOOK,
     );
     const mainPageUrl = 'http://localhost:3000';
     res.redirect(mainPageUrl);
@@ -330,8 +319,9 @@ export class AuthController {
       username,
       password_before,
       photo,
-      Source.NAVER,
+      Provider.NAVER,
     );
+    console.log(loginRes);
     const mainPageUrl = 'http://localhost:3000';
     res.redirect(mainPageUrl);
   }
@@ -359,26 +349,14 @@ export class AuthController {
       username,
       application_id,
       photo,
-      Source.KAKAO,
+      Provider.KAKAO,
     );
+    console.log(loginRes);
     const mainPageUrl = 'http://localhost:3000';
     res.redirect(mainPageUrl);
   }
 
-  @Post('password/sendtokentoemail')
-  @ApiOperation({
-    summary: 'password findby email',
-    description: 'email 로 token 발행',
-  })
-  @ApiResponse({ status: 200, description: 'passwordfind by email success' })
-  @ApiResponse({ status: 401, description: 'forbidden' })
-  async findPassword(@Body('email') email: string) {
-    const findUser = await this.userService.findPasswordByEmail(email);
-    await this.authService.sendPasswordVerification(findUser.email);
-    return 'successful send password link';
-  }
-
-  @Post('findemail')
+  @Post('email/search')
   @ApiCreatedResponse({ description: '결과' })
   @ApiResponse({ status: 201, description: ' 이메일 찾기' })
   @ApiOperation({ summary: ' 이메일 찾기', description: ' 이메일 찾기' })
@@ -387,7 +365,7 @@ export class AuthController {
     if (!findEmail) throw new HttpException(`no email`, HttpStatus.BAD_REQUEST);
   }
 
-  @Post('sendemail')
+  @Post('email/randomnum')
   @ApiCreatedResponse({ description: '결과' })
   @ApiResponse({ status: 201, description: ' 이메일 랜덤넘버 전송 성공' })
   @ApiOperation({
@@ -418,7 +396,7 @@ export class AuthController {
     return getRandomNumberinCache;
   }
 
-  @Post('link/passwordreset')
+  @Post('email/password')
   @ApiCreatedResponse({ description: '결과' })
   @ApiResponse({ status: 201, description: 'password reset link success' })
   @ApiOperation({
@@ -429,12 +407,12 @@ export class AuthController {
     await this.authService.sendVerificationLink(email);
   }
 
-  @Put('password/changebyemail')
+  @Put('password/change')
   @ApiOperation({
     summary: '발행된 토큰 + 변경비밀번호',
     description: 'password changeby email',
   })
-  @ApiResponse({ status: 200, description: 'passwordchange by email success' })
+  @ApiResponse({ status: 200, description: 'passwordchange by token success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
   async changePassword(@Body() passwordChangeDto: PasswordChangeDto) {
     await this.authService.changePassword(passwordChangeDto);

@@ -8,7 +8,6 @@ import {
 import { LibraryService } from './library.service';
 import { RoleGuard } from '@root/guard/role.guard';
 import { Role } from '@root/user/entities/source.enum';
-import { TransformInterceptor } from '@root/common/interceptor/transform.interceptor';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('library')

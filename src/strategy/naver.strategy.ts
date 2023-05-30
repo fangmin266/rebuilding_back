@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { Source } from '@root/user/entities/source.enum';
+import { Provider } from '@root/user/entities/source.enum';
 
 import { Profile, Strategy } from 'passport-naver';
 
 @Injectable()
-export class NaverStrategy extends PassportStrategy(Strategy, Source.NAVER) {
+export class NaverStrategy extends PassportStrategy(Strategy, Provider.NAVER) {
   constructor(private readonly configService: ConfigService) {
     super({
       clientID: configService.get('NAVER_CLIENT_ID'),

@@ -9,7 +9,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { Source } from '../entities/source.enum';
+import { Provider } from '../entities/source.enum';
 
 export class createCommon {
   @IsEmail()
@@ -44,5 +44,5 @@ export class CreateSocialUserDto extends createCommon {
 
   @IsString()
   @IsOptional() // 선택적으로 전달될 수 있는 소스 값
-  source?: Source;
+  provider?: Provider;
 }
