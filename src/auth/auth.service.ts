@@ -102,11 +102,17 @@ export class AuthService {
     )}`;
     return { cookie, token };
   }
+  public generateRefreshTokenCookieString(refreshToken: string) {
+    const cookie = `Refresh=${refreshToken}; Path=/; Max-Age=${this.configService.get(
+      'JWT_REFRESH_EXPIRATION_TIME',
+    )}`;
+    return cookie;
+  }
 
   public getCookiesForLogout() {
     return [
-      `Authentication=; HttpOnly; Path=/; Max-Age=0`,
-      `Refresh=; HttpOnly; Path=/; Max-Age=0`,
+      `Authentication=; Path=/; Max-Age=-1`,
+      `Refresh=; Path=/; Max-Age=-1`,
     ];
   }
 
@@ -150,31 +156,12 @@ export class AuthService {
     }
   }
 
-  public async decodedAccessToken(accessToken: string) {
-    const userRefresh = await this.jwtService.verify(accessToken, {
-      secret: this.configService.get('JWT_SECRET'),
+  public async decodedRefreshToken(refreshToken: string) {
+    const userRefresh = await this.jwtService.verify(refreshToken, {
+      secret: this.configService.get('JWT_REFRESH_SECRET'),
     });
-    return userRefresh.userId;
-  }
-
-  async changeAccessToken(refreshToken: string) {
-    try {
-      console.log(refreshToken, 'refresh');
-      // refreshToken의 유효성을 검증
-      const isValid = await this.userService.getByCurrentRefreshToken(
-        refreshToken,
-      );
-      if (isValid.expirationTime > new Date()) {
-        const newAccessToken = await this.generateJWT(isValid.payload.userId);
-        return newAccessToken;
-      } else {
-        throw new Error('Invalid refreshToken');
-      }
-    } catch (error) {
-      console.log(refreshToken);
-
-      throw new BadRequestException('refresh token is not valid');
-    }
+    const cacheuser = await this.cacheManager.get(userRefresh.userId);
+    return cacheuser;
   }
 
   public async confirmEmail(email: string) {

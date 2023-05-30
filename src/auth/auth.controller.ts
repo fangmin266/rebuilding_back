@@ -101,21 +101,25 @@ export class AuthController {
   ) {
     try {
       const user = request.user;
-      await this.cacheManager.del(user.id);
-      await this.cacheManager.set(user.id, user);
+
       const accessTokenCookie = await this.authService.generateJWT(user.id);
       const { cookie: refreshTokenCookie, token: refreshToken } =
         await this.authService.generateRefreshToken(user.id);
       await this.userService.setCurrnetsRefreshToken(refreshToken, user.id);
+      await this.cacheManager.set(user.id, user);
 
       const cookies = [
         `Authentication=${accessTokenCookie}; Path=/; `,
         refreshTokenCookie,
       ];
       response.setHeader('Set-Cookie', cookies);
-      console.log(response.getHeader('Set-Cookie'));
-      response.send({});
-      return user;
+      response.send({
+        user: {
+          ...user,
+          password: undefined, //프론트 백 둘다 http환경인 localhost로 진행하여 쿠키 옵션을 읽을수 있는 조건(javascript)로 제한하여 exclude 가 적용이 되지 않는 이슈같음, 일단 undefined로 처리
+          currentHashedRefreshToken: undefined,
+        },
+      });
     } catch (error) {
       console.log(error, 'error');
     }
@@ -141,42 +145,35 @@ export class AuthController {
     summary: '자동 로그인',
     description: '자동 로그인',
   })
-  async autoLogin(@Body('accessToken') accessToken: string) {
-    try {
-      const userId = await this.authService.decodedAccessToken(accessToken);
-      const user = await this.cacheManager.get(userId);
-      return user;
-    } catch (error) {
-      //accessToken 만료시
-      console.log(error);
-      throw new HttpException(`no token`, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @Post('autologin/newAccessToken')
-  @UseGuards(ThrottlerGuard)
-  @ApiResponse({ status: 200, description: 'newAccessToken success' })
-  @ApiResponse({ status: 401, description: 'forbidden' })
-  @ApiOperation({
-    summary: '자동 로그인-새 accessToken 발급',
-    description: '자동 로그인-새 accessToken 발급',
-  })
-  async setNewAccessToken(
+  async autoLogin(
     @Body('refreshToken') refreshToken: string,
-
     @Res() response: Response,
   ) {
-    const newAccessToken = await this.authService.changeAccessToken(
-      refreshToken,
-    );
-    const cookies = [
-      `Authentication=${newAccessToken}; Path=/; `,
-      `Refresh=${refreshToken}; Path=/; `,
-    ];
-
-    response.setHeader('Set-Cookie', cookies);
-    console.log(response.getHeader('Set-Cookie'));
-    response.send({});
+    try {
+      const user = await this.authService.decodedRefreshToken(refreshToken);
+      const accessTokenCookie = await this.authService.generateJWT(user.id);
+      const refreshTokenCookie =
+        await this.authService.generateRefreshTokenCookieString(refreshToken);
+      const newCookies = [
+        `Authentication=${accessTokenCookie}; Path=/; `,
+        refreshTokenCookie,
+      ];
+      const removecookies = await this.authService.getCookiesForLogout();
+      response.setHeader('Set-Cookie', [...removecookies, ...newCookies]);
+      response.send({
+        user: {
+          ...user,
+          password: undefined, //프론트 백 둘다 http환경인 localhost로 진행하여 쿠키 옵션을 읽을수 있는 조건(javascript)로 제한하여 exclude 가 적용이 되지 않는 이슈같음, 일단 undefined로 처리
+          currentHashedRefreshToken: undefined,
+        },
+      });
+    } catch (error) {
+      //user undefined일 경우 리프레시만료
+      if (error?.name === 'TokenExpiredError') {
+        console.log('리프레시 만료');
+        throw new HttpException(`refresh expired`, HttpStatus.BAD_REQUEST);
+      }
+    }
   }
 
   @Get('profile')

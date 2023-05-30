@@ -21,8 +21,9 @@ async function bootstrap() {
 
   app.useGlobalFilters(new HttpExceptionFilter()); //모든 에러는 형식
   app.useGlobalInterceptors(new TransformInterceptor()); //interceptor 전역화
+
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector))); //exclude 전역화
-  // app.useGlobalPipes(new ValidationPipe({ skipMissingProperties: true }));
+  app.useGlobalPipes(new ValidationPipe({ skipMissingProperties: true }));
   await app.listen(3600);
 }
 bootstrap();
