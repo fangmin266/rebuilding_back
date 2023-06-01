@@ -19,5 +19,5 @@ export class KakaoStrategy extends PassportStrategy(Strategy, Provider.KAKAO) {
     done: any,
   ): Promise<any> {
     return { profile, accessToken: accessToken, refreshToken: refreshToken };
-  }
+  } //accessToken을 return하지 않으면 profile값이 상이하게 출력됌
 }

@@ -33,16 +33,15 @@ export class AuthService {
   ) {}
 
   public async signup(createUserDto: CreateUserDto) {
-    await this.checkUserExists(createUserDto.email);
-    if (createUserDto.provider === Provider.LOCAL) {
+    await this.checkUserExists(createUserDto.email); //이메일중복체크
+    if (createUserDto.provider === Provider.LOCAL || !createUserDto.provider) {
       this.userService.create(createUserDto);
     } else {
-      throw new BadRequestException('provider is not local');
+      throw new BadRequestException('이미 가입된 이메일 혹은 소셜이 있습니다.');
     }
   }
 
   public async socialSignup(createSocialUserDto: CreateSocialUserDto) {
-    await this.checkUserExists(createSocialUserDto.email);
     if (createSocialUserDto) this.userService.createSocial(createSocialUserDto);
   }
 
@@ -106,6 +105,7 @@ export class AuthService {
     )}`;
     return { cookie, token };
   }
+
   public generateRefreshTokenCookieString(refreshToken: string) {
     const cookie = `Refresh=${refreshToken}; Path=/; Max-Age=${this.configService.get(
       'JWT_REFRESH_EXPIRATION_TIME',
@@ -227,36 +227,34 @@ export class AuthService {
     application_id: string,
     profile_img: string,
     provider: Provider = Provider.GOOGLE,
-    accessToken: string,
     refreshToken: string,
   ) {
-    try {
-      const user = await this.userService.getByEmail(email);
-      console.log(accessToken, refreshToken);
-      if (!user) {
-        //없을 경우 회원가입
-        await this.socialSignup({
-          email,
-          username,
-          profile_img,
-          application_id,
-          provider,
-        });
-        return {
-          statusCode: 200,
-          message: 'signup success',
-        };
+    const user = await this.userService.getByEmail(email);
+
+    if (!user) {
+      //없을 경우 회원가입
+      await this.socialSignup({
+        email,
+        username,
+        profile_img,
+        application_id,
+        provider,
+        refreshToken,
+      });
+      return user;
+    } else {
+      if (provider === user.provider) {
+        //소셜로그인 경로가 검색한 user의 가입경로와 같을때 //본인
+        return user;
       } else {
-        const token = this.generateJWT(user.id);
-        return { user, token };
+        throw new BadRequestException(
+          '이미 가입된 이메일 혹은 소셜이 있습니다.',
+        );
       }
-    } catch (error) {
-      throw new HttpException(
-        'something went wring in social',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
     }
   }
+
+  public async checkProviderSocial() {}
 
   public async changePassword(passwordChangeDto: PasswordChangeDto) {
     console.log(passwordChangeDto.token);

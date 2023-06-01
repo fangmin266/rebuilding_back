@@ -49,4 +49,7 @@ export class CreateSocialUserDto extends createCommon {
   @IsString()
   @IsOptional() // 선택적으로 전달될 수 있는 소스 값
   provider?: Provider;
+
+  @IsString()
+  refreshToken: string;
 }

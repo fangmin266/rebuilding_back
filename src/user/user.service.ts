@@ -71,7 +71,7 @@ export class UserService {
 
   async setIdCache(id: string) {
     const user = await this.userRepository.findOneBy({ id });
-    await this.cacheManager.set('user', user);
+    await this.cacheManager.set(id, user);
   }
 
   async create(userData: CreateUserDto) {
@@ -82,7 +82,10 @@ export class UserService {
   }
 
   async createSocial(userData: CreateSocialUserDto) {
-    const newUser = this.userRepository.create(userData);
+    const newUser = this.userRepository.create({
+      ...userData,
+      currentHashedRefreshToken: userData.refreshToken,
+    });
     await this.userRepository.save(newUser);
     await this.setIdCache(newUser.id);
     return newUser;

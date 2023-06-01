@@ -13,6 +13,8 @@ import {
   Inject,
   CACHE_MANAGER,
   HttpCode,
+  BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '@user/dto/create-user.dto';
@@ -40,6 +42,7 @@ import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
 import { Cache } from 'cache-manager';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { Provider } from '@root/user/entities/source.enum';
+import { handleSocialLoginError } from '@root/common/util/error';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -66,13 +69,16 @@ export class AuthController {
   async signup(@Body() createUserDto: CreateUserDto) {
     try {
       const user = await this.authService.signup(createUserDto);
-
       return user;
     } catch (error) {
-      throw new HttpException(
-        'something went wrong',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      if (
+        error instanceof BadRequestException ||
+        error instanceof HttpException
+      ) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException('Something went wrong');
+      }
     }
   }
 
@@ -102,14 +108,10 @@ export class AuthController {
         `Authentication=${accessTokenCookie}; Path=/; `,
         refreshTokenCookie,
       ];
+      console.log(cookies, 'cookies email');
       response.setHeader('Set-Cookie', cookies);
-      response.send({
-        user: {
-          ...user,
-          password: undefined, //프론트 백 둘다 http환경인 localhost로 진행하여 쿠키 옵션을 읽을수 있는 조건(javascript)로 제한하여 exclude 가 적용이 되지 않는 이슈같음, 일단 undefined로 처리
-          currentHashedRefreshToken: undefined,
-        },
-      });
+
+      response.send({});
     } catch (error) {
       console.log(error, 'error');
     }
@@ -148,6 +150,7 @@ export class AuthController {
         `Authentication=${accessTokenCookie}; Path=/; `,
         refreshTokenCookie,
       ];
+
       const removecookies = await this.authService.getCookiesForLogout();
       response.setHeader('Set-Cookie', [...removecookies, ...newCookies]);
       response.send({
@@ -253,16 +256,16 @@ export class AuthController {
     const user = req.user.profile;
     const email = user.email;
     const username = user.displayName;
-    const photo = user.picture;
+    const profile_img = user.picture;
     const application_id = user.id;
 
-    const loginRes = await this.authService.socialLogin(
+    await this.authService.socialLogin(
       email,
       username,
       application_id,
-      photo,
+      profile_img,
       Provider.GOOGLE,
-      user.accessToken,
+
       user.refreshToken,
     );
     const mainPageUrl = 'http://localhost:3000';
@@ -286,14 +289,14 @@ export class AuthController {
     const email = user._json.email;
     const username = user.name.familyName + user.name.givenName;
     const password_before = user.id + email;
-    const photo = null;
+    const profile_img = null;
     const loginRes = await this.authService.socialLogin(
       email,
       username,
       password_before,
-      photo,
+      profile_img,
       Provider.FACEBOOK,
-      user.accessToken,
+
       user.refreshToken,
     );
     const mainPageUrl = 'http://localhost:3000';
@@ -312,27 +315,42 @@ export class AuthController {
   @UseGuards(NaverGuard)
   @ApiResponse({ status: 200, description: 'naver login callback success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
-  async naverCallback(@Req() req, @Res() res) {
-    const user = req.user;
-    const userj = user.profile._json;
-    console.log(user, 'user');
+  async naverCallback(@Req() req, @Res() response: Response) {
+    const reqUser = req.user;
+    const userj = reqUser.profile._json;
     const email = userj.email ? userj.email : null;
     const username = userj.nickName ? userj.nickName : null;
-    const password_before = user.id + email;
-    const photo = userj.profile ? userj.profile : null;
-    console.log(user, 'naver user ~~~~~~~~~~~');
-    const loginRes = await this.authService.socialLogin(
-      email,
-      username,
-      password_before,
-      photo,
-      Provider.NAVER,
-      user.accessToken,
-      user.refreshToken,
-    );
-    console.log(loginRes);
+    const password_before = reqUser.id + email;
+    const profile_img = userj.profile ? userj.profile : null;
+    const refreshToken = reqUser.refreshToken;
     const mainPageUrl = 'http://localhost:3000';
-    res.redirect(mainPageUrl);
+
+    try {
+      const user = await this.authService.socialLogin(
+        email,
+        username,
+        password_before,
+        profile_img,
+        Provider.NAVER,
+        refreshToken,
+      );
+
+      const accessTokenCookie = await this.authService.generateJWT(user.id);
+      const refreshTokenCookie =
+        await this.authService.generateRefreshTokenCookieString(refreshToken);
+      await this.userService.setCurrnetsRefreshToken(refreshToken, user.id);
+      await this.cacheManager.set(user.id, user);
+      const cookies = [
+        `Authentication=${accessTokenCookie}; Path=/; `,
+        refreshTokenCookie,
+      ];
+
+      response.setHeader('Set-Cookie', cookies);
+
+      response.redirect(mainPageUrl);
+    } catch (error) {
+      handleSocialLoginError(response, mainPageUrl, error);
+    }
   }
 
   @Get('kakao')
@@ -347,25 +365,41 @@ export class AuthController {
   @UseGuards(KakaoGuard)
   @ApiResponse({ status: 200, description: 'kakao login callback success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
-  async kakaoCallback(@Req() req, @Res() res) {
-    // console.log(req);
-    console.log('hrer');
-    // const user = JSON.parse(req.user._raw);
-    // const email = user.kakao_account.email;
-    // const username = user.properties.nickName;
-    // const application_id = user.id;
-    // const photo = user.kakao_account.profile.profile_image_url;
-    // console.log(user);
-    // const loginRes = await this.authService.socialLogin(
-    //   email,
-    //   username,
-    //   application_id,
-    //   photo,
-    //   Provider.KAKAO,
-    // );
-    // console.log(loginRes);
-    // const mainPageUrl = 'http://localhost:3000';
-    // res.redirect(mainPageUrl);
+  async kakaoCallback(@Req() req, @Res() response: Response) {
+    const profile = req.user.profile;
+    const raw = profile._raw;
+    const kakaoaccount = JSON.parse(raw).kakao_account;
+
+    const email = kakaoaccount.email;
+    const refreshToken = req.user.refreshToken;
+    const username = profile.username;
+    const application_id = profile.id;
+    const profile_img = kakaoaccount.profile.profile_image_url;
+    const mainPageUrl = 'http://localhost:3000';
+
+    try {
+      const user = await this.authService.socialLogin(
+        email,
+        username,
+        application_id,
+        profile_img,
+        Provider.KAKAO,
+        refreshToken,
+      );
+      const accessTokenCookie = await this.authService.generateJWT(user.id);
+      const refreshTokenCookie =
+        await this.authService.generateRefreshTokenCookieString(refreshToken);
+      await this.userService.setCurrnetsRefreshToken(refreshToken, user.id);
+      await this.cacheManager.set(user.id, user);
+      const cookies = [
+        `Authentication=${accessTokenCookie}; Path=/; `,
+        refreshTokenCookie,
+      ];
+      response.setHeader('Set-Cookie', cookies);
+      response.redirect(mainPageUrl);
+    } catch (error) {
+      handleSocialLoginError(response, mainPageUrl, error);
+    }
   }
 
   @Post('email/search')
