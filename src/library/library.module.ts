@@ -5,11 +5,13 @@ import { HttpModule } from '@nestjs/axios';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Library } from './entities/library.entity';
 import { ConfigModule } from '@nestjs/config';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
     HttpModule,
     TypeOrmModule.forFeature([Library]),
+    JwtModule.register({}),
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
@@ -17,6 +19,6 @@ import { ConfigModule } from '@nestjs/config';
     }),
   ],
   controllers: [LibraryController],
-  providers: [LibraryService],
+  providers: [LibraryService, JwtService],
 })
 export class LibraryModule {}

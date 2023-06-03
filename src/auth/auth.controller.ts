@@ -130,6 +130,7 @@ export class AuthController {
   }
 
   @Post('autologin')
+  @UseGuards(JwtAuthGuard)
   @UseGuards(ThrottlerGuard)
   @ApiResponse({ status: 200, description: 'autologin success' })
   @ApiResponse({ status: 401, description: 'forbidden' })
@@ -137,38 +138,25 @@ export class AuthController {
     summary: '자동 로그인',
     description: '자동 로그인',
   })
-  async autoLogin(
-    @Body('refreshToken') refreshToken: string,
-    @Res() response: Response,
-  ) {
-    try {
-      const user = await this.authService.decodedRefreshToken(refreshToken);
-      const accessTokenCookie = await this.authService.generateJWT(user.id);
-      const refreshTokenCookie =
-        await this.authService.generateRefreshTokenCookieString(refreshToken);
-      const newCookies = [
-        `Authentication=${accessTokenCookie}; Path=/; `,
-        refreshTokenCookie,
-      ];
-
-      const removecookies = await this.authService.getCookiesForLogout();
-      response.setHeader('Set-Cookie', [...removecookies, ...newCookies]);
-      response.send({
-        user: {
-          ...user,
-          password: undefined, //프론트 백 둘다 http환경인 localhost로 진행하여 쿠키 옵션을 읽을수 있는 조건(javascript)로 제한하여 exclude 가 적용이 되지 않는 이슈같음, 일단 undefined로 처리
-          currentHashedRefreshToken: undefined,
-        },
-      });
-    } catch (error) {
-      //user undefined일 경우 리프레시만료
-      if (error?.name === 'TokenExpiredError') {
-        console.log('리프레시 만료');
-        throw new HttpException(`refresh expired`, HttpStatus.BAD_REQUEST);
-      }
-    }
+  async autoLogin(@Res() response: Response, @Res() request: Request) {
+    console.log('autologin');
+    // response.clearCookie('Authentication');
+    // response.clearCookie('Refresh');
+    // response.send({});
   }
+  // const resBody = response.req.body;
+  // const accessToken = resBody.access;
+  // const refeshTokenCookie =
+  //await this.authService.generateRefreshTokenCookieString(resBody.refresh);
+  // const newCookies = [
+  //   `Authentication=${accessToken}; Path=/; `,
+  //   refeshTokenCookie,
+  // ];
+  // console.log(newCookies, 'newCOokie');
 
+  // response.clearCookie('Authentication');
+  // response.clearCookie('Refresh');
+  // response.setHeader('Set-Cookie', [...newCookies])
   @Get('profile')
   @UseGuards(JwtAuthGuard)
   @ApiResponse({ status: 200, description: 'profile get success' })
