@@ -140,23 +140,9 @@ export class AuthController {
   })
   async autoLogin(@Res() response: Response, @Res() request: Request) {
     console.log('autologin');
-    // response.clearCookie('Authentication');
-    // response.clearCookie('Refresh');
-    // response.send({});
+    response.send({});
   }
-  // const resBody = response.req.body;
-  // const accessToken = resBody.access;
-  // const refeshTokenCookie =
-  //await this.authService.generateRefreshTokenCookieString(resBody.refresh);
-  // const newCookies = [
-  //   `Authentication=${accessToken}; Path=/; `,
-  //   refeshTokenCookie,
-  // ];
-  // console.log(newCookies, 'newCOokie');
 
-  // response.clearCookie('Authentication');
-  // response.clearCookie('Refresh');
-  // response.setHeader('Set-Cookie', [...newCookies])
   @Get('profile')
   @UseGuards(JwtAuthGuard)
   @ApiResponse({ status: 200, description: 'profile get success' })
