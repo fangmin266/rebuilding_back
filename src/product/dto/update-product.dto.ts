@@ -1,9 +1,6 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateProductDto } from './create-product.dto';
 import { Entity } from 'typeorm';
-import { AbstractEntity } from '@root/user/entities/abstract.entity';
-import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { AbstractEntity } from '@user/entities/abstract.entity';
 
 @Entity()
 export class UpdatedProductDto extends AbstractEntity {

@@ -1,5 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { AbstractEntity } from '@root/user/entities/abstract.entity';
+import { AbstractEntity } from '@user/entities/abstract.entity';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { Entity } from 'typeorm';
 

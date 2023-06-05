@@ -3,16 +3,16 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UserModule } from '@user/user.module';
 import { PassportModule } from '@nestjs/passport';
-import { LocalStrategy } from '@root/strategy/local.strategy';
+import { LocalStrategy } from '@strategy/local.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from '@root/strategy/jwt.strategy';
-import { EmailModule } from '@root/email/email.module';
-import { SmsModule } from '@root/sms/sms.module';
-import { GoogleStrategy } from '@root/strategy/google.strategy';
-import { FacebookStrategy } from '@root/strategy/facebook.strategy';
-import { NaverStrategy } from '@root/strategy/naver.strategy';
-import { KakaoStrategy } from '@root/strategy/kakao.strategy';
+import { JwtStrategy } from '@strategy/jwt.strategy';
+import { EmailModule } from '@email/email.module';
+import { SmsModule } from '@sms/sms.module';
+import { GoogleStrategy } from '@strategy/google.strategy';
+import { FacebookStrategy } from '@strategy/facebook.strategy';
+import { NaverStrategy } from '@strategy/naver.strategy';
+import { KakaoStrategy } from '@strategy/kakao.strategy';
 import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({

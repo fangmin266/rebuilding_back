@@ -1,6 +1,6 @@
-import { Comment } from '@root/comment/entities/comment.entity';
-import { AbstractEntity } from '@root/user/entities/abstract.entity';
-import { User } from '@root/user/entities/user.entity';
+import { Comment } from '@comment/entities/comment.entity';
+import { AbstractEntity } from '@user/entities/abstract.entity';
+import { User } from '@user/entities/user.entity';
 import {
   BeforeInsert,
   Column,

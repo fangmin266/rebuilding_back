@@ -1,15 +1,8 @@
-import {
-  Controller,
-  Post,
-  Body,
-  UseGuards,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@root/guard/jwtAuth.guard';
-import { TransformInterceptor } from '@root/common/interceptor/transform.interceptor';
+import { JwtAuthGuard } from '@guard/jwtAuth.guard';
 
 @Controller('comment')
 export class CommentController {

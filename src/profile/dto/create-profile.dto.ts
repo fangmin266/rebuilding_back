@@ -1,4 +1,4 @@
-import { User } from '@root/user/entities/user.entity';
+import { User } from '@user/entities/user.entity';
 
 export class CreateProfileDto {
   interest?: string;

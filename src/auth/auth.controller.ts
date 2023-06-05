@@ -21,28 +21,28 @@ import { CreateUserDto } from '@user/dto/create-user.dto';
 import { LocalAuthGuard } from '@root/guard/localAuth.gaurd';
 import { RequestWithUserInterface } from './interface/requestWithUser.interface';
 import { Response, Request, response } from 'express';
-import { JwtAuthGuard } from '@root/guard/jwtAuth.guard';
-import { ConfirmEmailDto } from '@root/user/dto/confirm-email.dto';
-import { ConfirmAuthenticate } from '@root/user/dto/confirm-authenticate.dto';
-import { SmsService } from '@root/sms/sms.service';
-import { GoogleOathGuard } from '@root/guard/googleAuth.guard';
-import { FacebookGuard } from '@root/guard/facebookAuth.guard';
+import { JwtAuthGuard } from '@guard/jwtAuth.guard';
+import { ConfirmEmailDto } from '@user/dto/confirm-email.dto';
+import { ConfirmAuthenticate } from '@user/dto/confirm-authenticate.dto';
+import { SmsService } from '@sms/sms.service';
+import { GoogleOathGuard } from '@guard/googleAuth.guard';
+import { FacebookGuard } from '@guard/facebookAuth.guard';
 import { HttpStatusCode } from 'axios';
-import { NaverGuard } from '@root/guard/naverAuth.guard';
-import { KakaoGuard } from '@root/guard/kakaoAuth.guard';
+import { NaverGuard } from '@guard/naverAuth.guard';
+import { KakaoGuard } from '@guard/kakaoAuth.guard';
 import {
   ApiCreatedResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { User } from '@root/user/entities/user.entity';
-import { UserService } from '@root/user/user.service';
-import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
+import { User } from '@user/entities/user.entity';
+import { UserService } from '@user/user.service';
+import { PasswordChangeDto } from '@user/dto/password-change.dto';
 import { Cache } from 'cache-manager';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { Provider } from '@root/user/entities/source.enum';
-import { handleSocialLoginError } from '@root/common/util/error';
+import { Provider } from '@user/entities/source.enum';
+import { handleSocialLoginError } from '@common/util/error';
 
 @ApiTags('auth')
 @Controller('auth')

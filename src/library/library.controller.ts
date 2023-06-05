@@ -1,14 +1,8 @@
-import {
-  Controller,
-  Get,
-  Post,
-  UseGuards,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { LibraryService } from './library.service';
-import { RoleGuard } from '@root/guard/role.guard';
-import { Role } from '@root/user/entities/source.enum';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { RoleGuard } from '@guard/role.guard';
+import { Role } from '@user/entities/source.enum';
 
 @Controller('library')
 export class LibraryController {

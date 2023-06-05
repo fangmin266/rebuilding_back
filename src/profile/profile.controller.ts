@@ -1,22 +1,9 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-  Req,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
-import { JwtAuthGuard } from '@root/guard/jwtAuth.guard';
-import { RequestWithUserInterface } from '@root/auth/interface/requestWithUser.interface';
 import { ApiResponse } from '@nestjs/swagger';
-import { TransformInterceptor } from '@root/common/interceptor/transform.interceptor';
+import { JwtAuthGuard } from '@guard/jwtAuth.guard';
+import { RequestWithUserInterface } from '@auth/interface/requestWithUser.interface';
 
 @Controller('profile')
 export class ProfileController {

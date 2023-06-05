@@ -14,12 +14,12 @@ import { UserService } from '@user/user.service';
 import * as bcrypt from 'bcryptjs';
 import { TokenPayload } from './interface/tokenPayload.interface';
 import { VerificationTokenPayloadInterface } from './interface/VerificationTokenPayload.interface';
-import { EmailService } from '@root/email/email.service';
+import { EmailService } from '@email/email.service';
 import Bootpay from '@bootpay/backend-js';
-import { ConfirmAuthenticate } from '@root/user/dto/confirm-authenticate.dto';
-import { PasswordChangeDto } from '@root/user/dto/password-change.dto';
-import { Provider } from '@root/user/entities/source.enum';
-import { RepoName } from '@root/user/entities/error.enum';
+import { ConfirmAuthenticate } from '@user/dto/confirm-authenticate.dto';
+import { PasswordChangeDto } from '@user/dto/password-change.dto';
+import { Provider } from '@user/entities/source.enum';
+import { RepoName } from '@user/entities/error.enum';
 import { Cache } from 'cache-manager';
 
 @Injectable()

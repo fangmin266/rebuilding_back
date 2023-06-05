@@ -13,8 +13,8 @@ import { Exclude } from 'class-transformer';
 import { AbstractEntity } from './abstract.entity';
 import { Provider, Role } from './source.enum';
 import * as grabatar from 'gravatar';
-import { Profile } from '@root/profile/entities/profile.entity';
 import { Product } from '@product/entities/product.entity';
+import { Profile } from '@profile/entities/profile.entity';
 
 @Entity()
 export class User extends AbstractEntity {

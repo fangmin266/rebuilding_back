@@ -3,20 +3,18 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
-  Delete,
   UseGuards,
   HttpStatus,
   HttpException,
-  UseInterceptors,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdatedProductDto } from './dto/update-product.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { RoleGuard } from '@root/guard/role.guard';
-import { Role } from '@root/user/entities/source.enum';
+import { RoleGuard } from '@guard/role.guard';
+import { Role } from '@user/entities/source.enum';
+
 // import { 'product'Name } from '@root/user/entities/error.enum';
 
 // export const 'product' = 'product'Name.PRODUCT;

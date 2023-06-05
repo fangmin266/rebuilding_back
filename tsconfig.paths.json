@@ -2,15 +2,19 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@root/*": ["./src/*"],
       "@email/*": ["./src/email/*"],
       "@auth/*": ["./src/auth/*"],
       "@user/*": ["./src/user/*"],
       "@product/*": ["./src/product/*"],
       "@common/*": ["./src/common/*"],
       "@files/*": ["./src/files/*"],
+      "@sms/*": ["./src/sms/*"],
+      "@comment/*": ["./src/comment/*"],
       "@profile/*": ["./src/profile/*"],
-      "@database/*": ["./src/database/*"]
+      "@database/*": ["./src/database/*"],
+      "@guard/*": ["./src/guard/*"],
+      "@strategy/*": ["./src/strategy/*"],
+      "@root/*": ["./src/*"]
     }
   }
 }

@@ -1,5 +1,5 @@
-import { AbstractEntity } from '@root/user/entities/abstract.entity';
-import { User } from '@root/user/entities/user.entity';
+import { AbstractEntity } from '@user/entities/abstract.entity';
+import { User } from '@user/entities/user.entity';
 import { Column, Entity, OneToOne } from 'typeorm';
 
 @Entity()

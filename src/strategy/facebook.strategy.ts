@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { Provider } from '@root/user/entities/source.enum';
+import { Provider } from '@user/entities/source.enum';
 import { Profile, Strategy } from 'passport-facebook';
 
 @Injectable()

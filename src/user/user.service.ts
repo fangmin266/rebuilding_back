@@ -11,9 +11,6 @@ import { CreateSocialUserDto, CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import { PageOptionDto } from '@root/common/dto/page-option.dto';
-import { Page } from '@root/common/dto/page.dto';
-import { PageMetaDto } from '@root/common/dto/page-meta.dto';
 import * as bcrypt from 'bcryptjs';
 import { Cron } from '@nestjs/schedule';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -21,6 +18,9 @@ import { RepoName } from './entities/error.enum';
 import { Cache } from 'cache-manager';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { PageOptionDto } from '@common/dto/page-option.dto';
+import { Page } from '@common/dto/page.dto';
+import { PageMetaDto } from '@common/dto/page-meta.dto';
 
 export const repo = RepoName.USER;
 @Injectable()

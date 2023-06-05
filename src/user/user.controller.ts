@@ -11,16 +11,16 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { RoleGuard } from '@root/guard/role.guard';
 import { Role } from './entities/source.enum';
-import { PageOptionDto } from '@root/common/dto/page-option.dto';
 import { User } from './entities/user.entity';
-import { Page } from '@root/common/dto/page.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { RepoName } from './entities/error.enum';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { RoleGuard } from '@guard/role.guard';
+import { PageOptionDto } from '@common/dto/page-option.dto';
+import { Page } from '@common/dto/page.dto';
 
 export const repo = RepoName.USER;
 @ApiTags(repo)

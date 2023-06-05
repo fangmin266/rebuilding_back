@@ -4,8 +4,8 @@ import { UserController } from './user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from '@root/strategy/jwt.strategy';
 import { ConfigModule } from '@nestjs/config';
+import { JwtStrategy } from '@strategy/jwt.strategy';
 
 @Module({
   imports: [

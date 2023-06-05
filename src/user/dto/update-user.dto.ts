@@ -1,7 +1,5 @@
 import { AbstractEntity } from '../entities/abstract.entity';
-
 import { IsArray, IsNotEmpty, IsString } from 'class-validator';
-
 import { Role } from '../entities/source.enum';
 
 export class UpdateUserDto extends AbstractEntity {
