@@ -140,7 +140,8 @@ export class AuthController {
   })
   async autoLogin(@Res() response: Response, @Res() request: Request) {
     console.log('autologin');
-    response.send({});
+    const body = request.body;
+    console.log(body, 'body');
   }
 
   @Get('profile')

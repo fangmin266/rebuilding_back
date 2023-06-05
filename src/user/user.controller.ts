@@ -50,6 +50,7 @@ export class UserController {
   @ApiResponse({ status: 401, description: 'forbidden' })
   @ApiOperation({ summary: `${repo} id get`, description: `${repo} id get` })
   async getProductById(@Param('id') id: string) {
+    console.log(id, 'id!!!!!!!!!!!!!!');
     if (id !== undefined) {
       return this.userService.getById(id);
     } else {

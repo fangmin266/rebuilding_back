@@ -16,3 +16,18 @@ export const RoleGuard = (role: Role): Type<CanActivate> => {
   }
   return mixin(RoleGuardMixin);
 };
+// import { CanActivate, ExecutionContext } from '@nestjs/common';
+// import { Role } from '@user/entities/source.enum';
+// import { RequestWithUserInterface } from '@auth/interface/requestWithUser.interface';
+
+// export class RoleGuard implements CanActivate {
+//   constructor(private readonly role: Role) {}
+
+//   canActivate(context: ExecutionContext): boolean {
+//     const request = context
+//       .switchToHttp()
+//       .getRequest<RequestWithUserInterface>();
+//     const user = request.user;
+//     return user?.userrole.includes(this.role);
+//   }
+// }

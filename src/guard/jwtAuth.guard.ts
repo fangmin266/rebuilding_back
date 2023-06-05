@@ -18,22 +18,24 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   handleRequest(err: any, user: any, info: any, context: any, status?: any) {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
-    const headers = request.body.headers;
-    console.log(headers, 'headers');
-    const authorizationHeader = headers.Authorization; //들어오는 authrization 받아옴
+    const { method } = request;
 
+    let headers;
+    if (method === 'GET') {
+      //RoleGuard, JwtAuthGuard를 실행하는 controller가 GET일 경우와 POST일 경우 header 위치가 상이
+      headers = request.headers;
+    } else {
+      headers = request.body.headers;
+    }
+    const authorizationHeader = headers.Authorization; //들어오는 authrization 받아옴
     try {
       //access토큰 유효
       if (authorizationHeader && authorizationHeader.startsWith('Bearer ')) {
         const accessToken = authorizationHeader?.replace('Bearer ', '');
-        this.jwtService.verify(accessToken, {
+        const verifyUser = this.jwtService.verify(accessToken, {
           secret: this.configService.get('JWT_SECRET'),
         });
-        console.log('accesstoken유효');
-        request.body = {
-          refersh: headers.refresh,
-          access: accessToken,
-        };
+        response.send({ user: verifyUser });
       }
     } catch (error) {
       console.log('access 만료');
@@ -43,6 +45,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         const decodedRefreshToken = this.jwtService.verify(refreshToken, {
           secret: this.configService.get('JWT_REFRESH_SECRET'),
         });
+
         const newAccessToken = this.jwtService.sign(
           { id: decodedRefreshToken.userId },
           {
@@ -55,20 +58,17 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
           'Authentication=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=-1;',
           'Refresh=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=-1;',
         ];
-
         const AccessCookie = `Authentication=${newAccessToken};Path=/;`;
         const RefreshCookie = `Refresh=${refreshToken};Path=/;Max-Age=${this.configService.get(
           'JWT_REFRESH_EXPIRATION_TIME',
         )};`;
         const newCookies = [AccessCookie, RefreshCookie];
-
         response.setHeader('Set-Cookie', [...removeCookies, ...newCookies]);
-        // response.send({});
+        response.send({ user: decodedRefreshToken });
       } else {
         throw new BadRequestException('refresh token 만료');
       }
     }
-
     return user;
   }
 }
