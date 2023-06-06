@@ -83,10 +83,10 @@ export class AuthService {
     }
   }
 
-  public generateJWT(userId: string) {
+  public generateJWT(id: string) {
     //userId로 jwt생성
 
-    const payload: TokenPayload = { userId };
+    const payload: TokenPayload = { id };
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_SECRET'),
       expiresIn: this.configService.get('JWT_EXPIRATION_TIME'),
@@ -94,8 +94,8 @@ export class AuthService {
     return token;
   }
 
-  public generateRefreshToken(userId: string) {
-    const payload: TokenPayload = { userId };
+  public generateRefreshToken(id: string) {
+    const payload: TokenPayload = { id };
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_REFRESH_SECRET'),
       expiresIn: this.configService.get('JWT_REFRESH_EXPIRATION_TIME'),

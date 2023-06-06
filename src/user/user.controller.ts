@@ -51,7 +51,8 @@ export class UserController {
   @ApiOperation({ summary: `${repo} id get`, description: `${repo} id get` })
   async getProductById(@Param('id') id: string) {
     console.log(id, 'id!!!!!!!!!!!!!!');
-    if (id !== undefined) {
+    console.log(typeof id, 'is it true?');
+    if (id) {
       return this.userService.getById(id);
     } else {
       throw new HttpException(`no ${repo} id`, HttpStatus.NOT_FOUND);

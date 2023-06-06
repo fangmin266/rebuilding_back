@@ -22,12 +22,15 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     let headers;
     if (method === 'GET') {
+      console.log('GET');
       //RoleGuard, JwtAuthGuard를 실행하는 controller가 GET일 경우와 POST일 경우 header 위치가 상이
       headers = request.headers;
     } else {
+      console.log('POST');
       headers = request.body.headers;
     }
     const authorizationHeader = headers.Authorization; //들어오는 authrization 받아옴
+
     try {
       //access토큰 유효
       if (authorizationHeader && authorizationHeader.startsWith('Bearer ')) {
@@ -36,6 +39,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
           secret: this.configService.get('JWT_SECRET'),
         });
         response.send({ user: verifyUser });
+        console.log('here1', verifyUser);
       }
     } catch (error) {
       console.log('access 만료');
@@ -46,8 +50,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
           secret: this.configService.get('JWT_REFRESH_SECRET'),
         });
 
+        console.log(decodedRefreshToken, 'decodedRefreshToken');
         const newAccessToken = this.jwtService.sign(
-          { id: decodedRefreshToken.userId },
+          { id: decodedRefreshToken.id },
           {
             secret: this.configService.get('JWT_SECRET'),
             expiresIn: this.configService.get('JWT_EXPIRATION_TIME'),
@@ -65,6 +70,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         const newCookies = [AccessCookie, RefreshCookie];
         response.setHeader('Set-Cookie', [...removeCookies, ...newCookies]);
         response.send({ user: decodedRefreshToken });
+        console.log('here2', decodedRefreshToken);
       } else {
         throw new BadRequestException('refresh token 만료');
       }
