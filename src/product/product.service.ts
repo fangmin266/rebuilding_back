@@ -12,6 +12,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { Cache } from 'cache-manager';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
 // import { RepoName } from '@root/user/entities/error.enum';
 
 // export const repo = RepoName.PRODUCT;
@@ -20,9 +22,35 @@ export class ProductService {
   constructor(
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
+  async createAll() {
+    const { data, status } = await this.httpService
+      .get(this.configService.get('DUMMY_JSON') + 'products')
+      .toPromise();
+    if (status === 200) {
+      const datas = data.products;
+      console.log(datas, 'datas');
+      const productData = [];
+      datas?.map((data) =>
+        productData.push({
+          title: data.title,
+          content: data.description,
+          productLimit: data.stock,
+          price: data.price,
+          startFunding: new Date(),
+          endFunding: new Date(),
+          startDelivery: new Date(),
+          productImage: data.images,
+          thumbnail: data.thumbnail,
+        }),
+      );
+      return await this.productRepository.save(productData);
+    }
+  }
   async create(createProductDto: CreateProductDto) {
     const alreadyExist = await this.getByTitle(createProductDto.title);
     if (alreadyExist === null) {
@@ -36,8 +64,11 @@ export class ProductService {
   }
 
   async getAll() {
-    const cacheProduct = await this.cacheManager.get('products');
-    return cacheProduct;
+    // const cacheProduct = await this.cacheManager.get('products');
+    // return cacheProduct;
+    //일단 db에서 부르기
+    const allProduct = await this.productRepository.findBy({});
+    return allProduct;
   }
 
   async setAllProductCache() {
@@ -72,7 +103,7 @@ export class ProductService {
             title: updatedProductDto.title,
             content: updatedProductDto.content,
             startFunding: updatedProductDto.startFunding,
-            startDeleviery: updatedProductDto.startDeleviery,
+            startDelivery: updatedProductDto.startDelivery,
             deliveryFee: updatedProductDto.deliveryFee,
             productLimit: updatedProductDto.productLimit,
             price: updatedProductDto.price,

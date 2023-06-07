@@ -35,6 +35,18 @@ export class ProductController {
     return await this.productService.create(createProductDto);
   }
 
+  @Post('dummy')
+  // @UseGuards(RoleGuard(Role.USER))
+  @ApiResponse({ status: 200, description: 'success post product dummy' })
+  @ApiResponse({ status: 401, description: 'forbidden' })
+  @ApiOperation({
+    summary: 'post product dummy',
+    description: 'success post product dummy',
+  })
+  async postLibrary() {
+    await this.productService.createAll();
+  }
+
   @Get('all')
   // @UseGuards(RoleGuard(Role.USER))
   @ApiResponse({ status: 200, description: `get ${'product'} all` })

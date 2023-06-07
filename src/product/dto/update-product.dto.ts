@@ -19,7 +19,7 @@ export class UpdatedProductDto extends AbstractEntity {
 
   @IsString()
   @IsNotEmpty()
-  public startDeleviery?: string;
+  public startDelivery?: string;
 
   @IsNumber()
   public deliveryFee?: number;

@@ -15,7 +15,7 @@ export class Product extends AbstractEntity {
   @Column({ nullable: true })
   public title: string;
 
-  @Column()
+  @Column({ nullable: true })
   public content: string;
 
   @Column()
@@ -25,9 +25,9 @@ export class Product extends AbstractEntity {
   public endFunding: string;
 
   @Column()
-  public startDeleviery: string;
+  public startDelivery: string;
 
-  @Column()
+  @Column({ nullable: true })
   public deliveryFee: number;
 
   @Column()
@@ -36,8 +36,14 @@ export class Product extends AbstractEntity {
   @Column()
   public price: number;
 
-  @Column()
+  @Column({ nullable: true })
   public productNum: string;
+
+  @Column({ type: 'json', nullable: true })
+  public productImage: string[];
+
+  @Column()
+  public thumbnail: string;
 
   @ManyToMany(() => User, (user: User) => user.fundingProducts)
   @JoinTable()
